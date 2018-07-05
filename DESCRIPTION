@@ -1,0 +1,15 @@
+Package: packagefinder
+Type: Package
+Title: Comfortable Search for R Packages on CRAN
+Version: 0.0.7
+Authors@R: person("Joachim", "Zuckarelli", role = c("aut", "cre"), email = "joachim@zuckarelli.de", comment = c(ORCID = "0000-0002-9280-3016"))
+Maintainer: Joachim Zuckarelli <joachim@zuckarelli.de>
+Description: Tool to search for R packages on CRAN, based on their title, short and long descriptions. 'packagefinder' allows to search for multiple keywords at once and to combine the keywords with logical operators (AND/OR).
+License: GPL-3
+Encoding: UTF-8
+BugReports: https://github.com/jsugarelli/packagefinder/issues
+URL: https://github.com/jsugarelli/packagefinder/
+Repository: CRAN
+LazyData: true
+Imports: httr, utils, jsonlite, pander, formattable, stringr, tools
+RoxygenNote: 6.0.1
