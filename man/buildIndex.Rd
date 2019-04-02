@@ -15,12 +15,12 @@ buildIndex(filename = "", download.stats = FALSE)
 Returns the search index. As a side effect, the index is saved to a file, if a filename is provided via the \code{filename} argument.
 }
 \description{
-Builds a search index that can be used with \code{\link{findPackage}}.
+Builds a search index that can be used with \code{\link{findPackage}()}.
 }
 \details{
-\code{buildIndex} creates the index that is needed by the \code{\link{findPackage}} function to search CRAN. Optionally, this index can include download figures for the packages
-(this feature is turned on with \code{download.stats = TRUE}). Including download stats requires significant time (may be > 1 hour) for the index to be built. Therefore, when \code{\link{findPackage}} is called without
-providing an index, the index that is created ad hoc does not contain CRAN download figures.
+Functions like \code{\link{findPackage}()} or \code{\link{go}()} require a search index. This search index can either be created on-the-fly or be provided as a separate argument. In the latter case a search index can be built using \code{buildIndex()}. This index can include download figures for the packages
+(this feature is turned on with \code{download.stats = TRUE}). Including download stats requires significant time (may well be > 1 hour) for the index to be built. Therefore, when \code{\link{findPackage}()} is called without
+providing an index, the index that is created on-the-fly does not contain CRAN download figures.
 }
 \examples{
 index <- buildIndex(filename = file.path(tempdir(), "searchindex.rdata"), download.stats = FALSE)
