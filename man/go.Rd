@@ -4,23 +4,23 @@
 \alias{go}
 \title{Showing information about a package}
 \usage{
-go(package, index = NULL, where.to = "manual")
+go(package, where.to = "details", index = NULL)
 }
 \arguments{
-\item{package}{Either the name of the package (capitalization does generally not matter) or the search result number shown in the results of \code{\link{findPackage}} (the number in the \code{GO} column).}
+\item{package}{Either the name of the package (capitalization does generally not matter) or the search result number shown in the results of \code{\link{findPackage}()} (the number in the \code{GO} column).}
 
-\item{index}{Either a path (or URL) to a search index, or a search index that is already loaded. If no index is provided, \code{findPackage} creates an ad hoc search index.}
+\item{where.to}{Either \code{"details"} (default), \code{"manual"}, \code{"website"}, or \code{"install"}. With \code{"details"}, \code{go()} presents a set of CRAN information on the package, \code{where.to = "manual"} opens the package's PDF manual from the web and \code{where.to = "website"} pulls up the package's website(s), if any website is provided by the package maintainer. \code{where.to = "install"} installs the package (including dependencies).}
 
-\item{where.to}{Either \code{"manual"}, \code{"cran"} or \code{"install"}. With \code{where.to = "manual"} \code{go()} opens the package's PDF manual from the web, \code{where.to = "cran"} pulls up the package's CRAN website and \code{where.to = "install"} installs the package (including dependencies).}
+\item{index}{Either a path (or URL) to a search index, or a search index that is already loaded. If no index is provided, \code{go()} creates an ad hoc search index.}
 }
 \value{
 No return value.
 }
 \description{
-Allows to inspect a package found with \code{\link{findPackage}} by showing its manual (PDF) or go to its CRAN webpage.
+Allows to inspect a package found with \code{\link{findPackage}()} by showing detailed CRAN information on the package, opening its manual (PDF) or pulling up the package's website. Also allows to install the package right away.
 }
 \details{
-\code{go()} is made to inspect a package found with \code{findPackage()} and to decide whether or not this package serves the intended purposes.
+\code{go()} is made to inspect a package found with \code{\link{findPackage}()} and to decide whether or not this package serves the intended purposes.
 }
 \author{
 Joachim Zuckarelli \email{joachim@zuckarelli.de}

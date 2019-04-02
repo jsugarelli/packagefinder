@@ -4,14 +4,13 @@
 \alias{findPackage}
 \title{Searching for packages on CRAN}
 \usage{
-findPackage(keywords, index = NULL, mode = "or", case.sensitive = FALSE,
+findPackage(keywords, mode = "or", case.sensitive = FALSE,
   always.sensitive = NULL, weights = c(1, 2, 1, 2), display = "viewer",
-  results.longdesc = FALSE)
+  results.longdesc = FALSE, limit.results = 15, silent = FALSE,
+  index = NULL)
 }
 \arguments{
 \item{keywords}{A vector of keywords to be searched for.}
-
-\item{index}{Either a path (or URL) to a search index, or a search index that is already loaded. If no index is provided, \code{findPackage} creates an ad hoc search index.}
 
 \item{mode}{Indicates wthether the search terms in \code{keywords} shall be combined with a logical OR or with a logical AND; accordingly, permitted values are \code{"or"} (default) and \code{"and"}. In \code{"or"} mode, every package that contains \emph{at least one} of the keywords from the \code{keywords} argument is a search hit, in \code{"and"} mode generating a search hit requires \emph{all} search terms from the \code{keywords} argument to be found.}
 
@@ -24,6 +23,12 @@ findPackage(keywords, index = NULL, mode = "or", case.sensitive = FALSE,
 \item{display}{Describes where the search results shall be shown. Either \code{"viewer"} or \code{"console"}. If \code{"viewer"}, the results are shown as a formatted web page in the browser (or in RStudio's Viewer pane if the RStudio IDE is being used). If \code{results = "console"} the search results are shown as a text table in the R console.}
 
 \item{results.longdesc}{Indicates whether the packages' long descriptions shall also be included in the search results. Given the length of some long decsriptions this may make the search results harder to read.}
+
+\item{limit.results}{The maximum number of matches presented in the search results; choose a negative number to display all results}
+
+\item{silent}{Indicates whether details of the user's search query are repeated in the console.}
+
+\item{index}{Either a path (or URL) to a search index, or a search index that is already loaded. If no index is provided, \code{findPackage()} creates an ad hoc search index.}
 }
 \value{
 No return value.
@@ -34,18 +39,18 @@ Searches for packages on CRAN based on the user's specification of search terms.
 \details{
 The \code{GO} column in the search results is an index number that can be used to address the found package easily with the \code{go()} function.
 The \code{DOWNL_TOTAL} column in the search results gives the overall number of downloads of the respective package since its submission to CRAN. The number is based on the figures for the RStudio CRAN mirror server.
-This field is only provided if the search index contains download figures. Ad hoc indices (when \code{index = NULL}) never include download statistics. Please refer to \code{\link{buildIndex}} for more details.
+This field is only provided if the search index contains download figures. Ad hoc indices (when \code{index = NULL}) never include download statistics. Please refer to \code{\link{buildIndex}()} for more details.
 }
 \examples{
 \donttest{
-search <- "regression"
+search <- c("regression", "meta")
 findPackage(search)
 
-findPackage(c("text", "tables"), mode="and")
+findPackage(c("text", "tables"))
 
 searchindex <- buildIndex()
-findPackage(keywords=c("regression", "linear"), index=searchindex,
-   mode="and", always.sensitive="GLM")
+findPackage(keywords=c("regression", "linear"), mode="and",
+   always.sensitive="GLM", index=searchindex)
 }
 }
 \author{
