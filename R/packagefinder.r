@@ -30,13 +30,13 @@ NULL
 ###   PACKAGE PACKAGEFINDER
 ###
 ###   Author and maintainer: Joachim Zuckarelli (joachim@zuckarelli.de)
-###   Version 0.1.0
+###   Version 0.1.1
 ###
 
 
 
 .onAttach <- function(libname, pkgname){
-  packageStartupMessage(crayon::blue(crayon::bold("\npackagefinder"), "version 0.1.0\n\n"))
+  packageStartupMessage(crayon::blue(crayon::bold("\npackagefinder"), "version 0.1.1\n\n"))
   packageStartupMessage(crayon::green("Getting started:\n\n"))
   packageStartupMessage(crayon::silver("* Use", crayon::cyan("findPackage(keywords, mode)"), "to search CRAN for packages, e.g.",crayon::italic("findPackage(c(\"meta\",\"regression\"), \"and\")\n\n")), sep="")
   packageStartupMessage(crayon::silver("* Use the operators", crayon::cyan("p?\"term1 term2 ...\""), "or", crayon::cyan("po?\"term1 term2 ...\""), "to search CRAN for packages in OR mode, use", crayon::cyan("pa?\"term1 term2 ...\""), "to search in AND mode, e.g.",crayon::italic("pa?\"meta regression\""),".\nDo not forget to use the quoation marks, even with one search term.\n\n"), sep="")
@@ -575,38 +575,42 @@ go <- function(package, where.to = "details", index = NULL) {
   searchindex <- makeIndexAvailable(index)
   if(class(searchindex) == "list"){
     go.num <- checkPackageValidity(searchindex, package)
-    if(!(tolower(where.to) %in% c("install", "website", "manual", "details"))) {
-      stop("Argument go.num must be either 'install', 'website', 'manual' or 'details'.")
-    } else {
-      if(is.numeric(go.num)) {
-        if(go.num %% 1 == 0) {
-          df <- searchindex$index[go.num,]
-          if(is.na(df$NAME[1])) stop(paste0("No go.num with index ", go.num, " could be found."))
-        }
-      }
-      else {
-        df <- searchindex$index[tolower(searchindex$index$NAME)==tolower(go.num),]
-        if(NROW(df)>1) df<- searchindex$index[searchindex$index$NAME==go.num,]
-        if(NROW(df)==0) stop(paste0("go.num '", go.num, "' could not be found."))
-      }
-      if(tolower(where.to)=="install") {
-        utils::install.packages(go.num, dependencies=TRUE)
-      }
-      else {
-        if(tolower(where.to)=="website") {
-          urls <- stringr::str_trim(stringr::str_split(df$URL, ",")[[1]])
-          for(i in 1:NROW(urls)) utils::browseURL(urls[i])
+    if(!is.null(go.num)) {
+      if(!(tolower(where.to) %in% c("install", "website", "manual", "details"))) {
+        stop("Argument go.num must be either 'install', 'website', 'manual' or 'details'.")
+      } else {
+        if(is.numeric(go.num)) {
+          if(go.num %% 1 == 0) {
+            df <- searchindex$index[go.num,]
+            if(is.na(df$NAME[1])) stop(paste0("No go.num with index ", go.num, " could be found."))
+          }
         }
         else {
-          if(tolower(where.to)=="manual") {
-            utils::browseURL(as.character(df$MANUAL))
+          df <- searchindex$index[tolower(searchindex$index$NAME)==tolower(go.num),]
+          if(NROW(df)>1) df<- searchindex$index[searchindex$index$NAME==go.num,]
+          if(NROW(df)==0) stop(paste0("go.num '", go.num, "' could not be found."))
+        }
+        if(tolower(where.to)=="install") {
+          utils::install.packages(go.num, dependencies=TRUE)
+        }
+        else {
+          if(tolower(where.to)=="website") {
+            urls <- stringr::str_trim(stringr::str_split(df$URL, ",")[[1]])
+            for(i in 1:NROW(urls)) utils::browseURL(urls[i])
           }
-          else
-            if(tolower(where.to)=="details") {
-              packageDetails(index = index, go.num, show.tip = TRUE)
+          else {
+            if(tolower(where.to)=="manual") {
+              utils::browseURL(as.character(df$MANUAL))
             }
+            else
+              if(tolower(where.to)=="details") {
+                packageDetails(index = index, go.num, show.tip = TRUE)
+              }
+          }
         }
       }
+    } else {
+      stop(paste0("Package ", as.character(package), " does not exist. Please check the package GO number / name."))
     }
   } else {
     stop("Search index is not available. Create a search index with buidIndex().")
@@ -624,7 +628,7 @@ checkPackageValidity <- function(index, package) {
       return(as.integer(rownames(index$index[index$index$NAME==package,])))
     }
   }
-  return(-1)
+  return(NULL)
 }
 
 
@@ -663,31 +667,36 @@ packageDetails <- function(package, brief=FALSE, show.tip=TRUE, index=NULL) {
   searchindex <- makeIndexAvailable(index)
   if(class(searchindex) == "list"){
     go.num <- checkPackageValidity(searchindex, package)
-    cat(crayon::cyan("\nPackage", crayon::bold(searchindex$index$NAME[go.num]), "\n\n"), sep="")
-    packageElement("Title", searchindex$index$DESC_SHORT[go.num])
-    packageElement("Long description", searchindex$index$DESC_LONG[go.num])
-    if(brief == FALSE) packageElement("Publish date", searchindex$index$DATE[go.num])
-    if(brief == FALSE) packageElement("Version", searchindex$index$VERSION[go.num])
-    if(brief == FALSE) packageElement("License", searchindex$index$LICENSE[go.num])
-    if(brief == FALSE) if(!is.na(searchindex$index$COPYRIGHT[go.num])) packageElement("Copyright", searchindex$index$COPYRIGHT[go.num])
-    packageElement("Maintainer", searchindex$index$MAINTAINER[go.num])
-    if(brief == FALSE) {
-      if(!is.na(searchindex$index$CONTACT[go.num])) packageElement("Contact", searchindex$index$CONTACT[go.num])
-      if(!is.na(searchindex$index$MAILINGLIST[go.num])) packageElement("Mailing list", searchindex$index$MAILINGLIST[go.num])
-      if(!is.na(searchindex$index$URL[go.num])) packageElement("URL", searchindex$index$URL[go.num])
-      if(!is.na(searchindex$index$BUGREPORTS[go.num])) packageElement("Bug reports", searchindex$index$BUGREPORTS[go.num])
-      if(!is.na(searchindex$index$AUTHOR[go.num])) packageElement("Authors", searchindex$index$AUTHOR[go.num])
-      if(!is.na(searchindex$index$AUTHORS[go.num])) packageElement("Authors@R", searchindex$index$AUTHORS[go.num])
-      if(!is.na(searchindex$index$ENHANCES[go.num])) packageElement("Enhances", searchindex$index$ENHANCES[go.num])
-      if(!is.na(searchindex$index$IMPORTS[go.num])) packageElement("Imports", searchindex$index$IMPORTS[go.num])
-      if(!is.na(searchindex$index$DEPENDS[go.num])) packageElement("Depends", searchindex$index$DEPENDS[go.num])
-      if(!is.na(searchindex$index$SUGGESTS[go.num])) packageElement("Suggests", searchindex$index$SUGGESTS[go.num])
-      if(!is.na(searchindex$index$REVERSE.DEPENDS[go.num])) packageElement("Reverse depends", searchindex$index$REVERSE.DEPENDS[go.num])
-      if(!is.na(searchindex$index$REVERSE.SUGGESTS[go.num])) packageElement("Reverse suggests", searchindex$index$REVERSE.SUGGESTS[go.num])
-      if(!is.na(searchindex$index$REVERSE.ENHANCES[go.num])) packageElement("Reverse enhances", searchindex$index$REVERSE.ENHANCES[go.num])
-      if(!is.na(searchindex$index$NOTE[go.num])) packageElement("Note", searchindex$index$NOTE[go.num])
+    if(!is.null(go.num)) {
+      cat(crayon::cyan("\nPackage", crayon::bold(searchindex$index$NAME[go.num]), "\n\n"), sep="")
+      packageElement("Title", searchindex$index$DESC_SHORT[go.num])
+      packageElement("Long description", searchindex$index$DESC_LONG[go.num])
+      if(brief == FALSE) packageElement("Publish date", searchindex$index$DATE[go.num])
+      if(brief == FALSE) packageElement("Version", searchindex$index$VERSION[go.num])
+      if(brief == FALSE) packageElement("License", searchindex$index$LICENSE[go.num])
+      if(brief == FALSE) if(!is.na(searchindex$index$COPYRIGHT[go.num])) packageElement("Copyright", searchindex$index$COPYRIGHT[go.num])
+      packageElement("Maintainer", searchindex$index$MAINTAINER[go.num])
+      if(brief == FALSE) {
+        if(!is.na(searchindex$index$CONTACT[go.num])) packageElement("Contact", searchindex$index$CONTACT[go.num])
+        if(!is.na(searchindex$index$MAILINGLIST[go.num])) packageElement("Mailing list", searchindex$index$MAILINGLIST[go.num])
+        if(!is.na(searchindex$index$URL[go.num])) packageElement("URL", searchindex$index$URL[go.num])
+        if(!is.na(searchindex$index$BUGREPORTS[go.num])) packageElement("Bug reports", searchindex$index$BUGREPORTS[go.num])
+        if(!is.na(searchindex$index$AUTHOR[go.num])) packageElement("Authors", searchindex$index$AUTHOR[go.num])
+        if(!is.na(searchindex$index$AUTHORS[go.num])) packageElement("Authors@R", searchindex$index$AUTHORS[go.num])
+        if(!is.na(searchindex$index$ENHANCES[go.num])) packageElement("Enhances", searchindex$index$ENHANCES[go.num])
+        if(!is.na(searchindex$index$IMPORTS[go.num])) packageElement("Imports", searchindex$index$IMPORTS[go.num])
+        if(!is.na(searchindex$index$DEPENDS[go.num])) packageElement("Depends", searchindex$index$DEPENDS[go.num])
+        if(!is.na(searchindex$index$SUGGESTS[go.num])) packageElement("Suggests", searchindex$index$SUGGESTS[go.num])
+        if(!is.na(searchindex$index$REVERSE.DEPENDS[go.num])) packageElement("Reverse depends", searchindex$index$REVERSE.DEPENDS[go.num])
+        if(!is.na(searchindex$index$REVERSE.SUGGESTS[go.num])) packageElement("Reverse suggests", searchindex$index$REVERSE.SUGGESTS[go.num])
+        if(!is.na(searchindex$index$REVERSE.ENHANCES[go.num])) packageElement("Reverse enhances", searchindex$index$REVERSE.ENHANCES[go.num])
+        if(!is.na(searchindex$index$NOTE[go.num])) packageElement("Note", searchindex$index$NOTE[go.num])
+      }
+      if(show.tip == TRUE) cat(crayon::magenta(crayon::bold("\nTip:"), "Use", crayon::bold(paste0("go(", package,",\"manual\")")), paste0("to view the manual of package '", searchindex$index$NAME[go.num],"' and"), crayon::bold(paste0("go(", package,",\"website\")")), paste0("to visit its website (if any is provided).")),sep="")
     }
-    if(show.tip == TRUE) cat(crayon::magenta(crayon::bold("\nTip:"), "Use", crayon::bold(paste0("go(", package,",\"manual\")")), paste0("to view the manual of package '", searchindex$index$NAME[go.num],"' and"), crayon::bold(paste0("go(", package,",\"website\")")), paste0("to visit its website (if any is provided).")),sep="")
+    else {
+      stop(paste0("Package ", as.character(package), " does not exist. Please check the package GO number / name."))
+    }
   }
   else {
     stop("Search index is not available. Create a search index with buidIndex().")
