@@ -1,7 +1,7 @@
 Package: packagefinder
 Type: Package
-Title: Comfortable Search for R Packages on CRAN Directly from the R Console'
-Version: 0.1.0
+Title: Comfortable Search for R Packages on CRAN Directly from the R Console
+Version: 0.1.1
 Authors@R: person("Joachim", "Zuckarelli", role = c("aut", "cre"), email = "joachim@zuckarelli.de", comment = c(ORCID = "0000-0002-9280-3016"))
 Maintainer: Joachim Zuckarelli <joachim@zuckarelli.de>
 Description: Search for R packages on CRAN directly from the R console, based on the packages' titles, short and long descriptions, or other fields. Combine multiple keywords with logical operators ('and', 'or'), view detailed information on any package and keep track of the latest package contributions to CRAN.

@@ -1,3 +1,12 @@
+# packagefinder 0.1.1
+
+## Bug fixes
+
+* Minor bug fixed that occurred when checking details of a non-existing package.
+
+
+
+
 # packagefinder 0.1.0
 
 With version 0.1.0 the features of packagefinder have been significantly enhanced.
