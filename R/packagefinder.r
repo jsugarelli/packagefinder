@@ -21,6 +21,7 @@
 #'}
 #'\item packagefinder \strong{introduction}: \href{http://www.zuckarelli.de/packagefinder/tutorial.html}{A Quick Tutorial}
 #'\item packagefinder on \strong{GitHub}: \href{https://github.com/jsugarelli/packagefinder}{https://github.com/jsugarelli/packagefinder}
+#'\item packagefinder video tutorial on \strong{YouTube}: \href{https://www.youtube.com/watch?v=66Mes6_hYno}{https://www.youtube.com/watch?v=66Mes6_hYno}
 #'}
 #'
 #'@name packagefinder
@@ -30,16 +31,15 @@ NULL
 ###   PACKAGE PACKAGEFINDER
 ###
 ###   Author and maintainer: Joachim Zuckarelli (joachim@zuckarelli.de)
-###   Version 0.1.1
+###   Version 0.1.4
 ###
 
 
 
 .onAttach <- function(libname, pkgname){
-  packageStartupMessage(crayon::blue(crayon::bold("\npackagefinder"), "version 0.1.1\n\n"))
+  packageStartupMessage(crayon::blue(crayon::bold("\npackagefinder"), "version 0.1.4\n\n"))
   packageStartupMessage(crayon::green("Getting started:\n\n"))
   packageStartupMessage(crayon::silver("* Use", crayon::cyan("findPackage(keywords, mode)"), "to search CRAN for packages, e.g.",crayon::italic("findPackage(c(\"meta\",\"regression\"), \"and\")\n\n")), sep="")
-  packageStartupMessage(crayon::silver("* Use the operators", crayon::cyan("p?\"term1 term2 ...\""), "or", crayon::cyan("po?\"term1 term2 ...\""), "to search CRAN for packages in OR mode, use", crayon::cyan("pa?\"term1 term2 ...\""), "to search in AND mode, e.g.",crayon::italic("pa?\"meta regression\""),".\nDo not forget to use the quoation marks, even with one search term.\n\n"), sep="")
   packageStartupMessage(crayon::silver("* Use", crayon::cyan("exploreFields(fields, term)"),"to search a term in the specified fields, e.g.", crayon::italic("exploreFields(c(\"Package\", \"Title\"), \"logistic\")\n\n")), sep="")
   packageStartupMessage(crayon::silver("* Use", crayon::cyan("whatsNew()"),"to check for new packages on CRAN.\n\n"), sep="")
 
@@ -112,7 +112,7 @@ makeIndexAvailable <- function(address) {
 #' @author Joachim Zuckarelli \email{joachim@@zuckarelli.de}
 #'
 #' @examples
-#' index <- buildIndex(filename = file.path(tempdir(), "searchindex.rdata"), download.stats = FALSE)
+#' \donttest{ index <- buildIndex(filename = file.path(tempdir(), "searchindex.rdata"), download.stats = FALSE) }
 #'
 #' @import tools
 #' @export
@@ -322,7 +322,7 @@ findPackage<-function(keywords, mode = "or", case.sensitive = FALSE, always.sens
 #' @description Searches for packages on CRAN by scanning a specified set of information fields for a user-provided search term.
 #'
 #' @param term Search term to look for; character vector must have one element.
-#' @param fields The list of fields to be scanned for the search term; must be a character vector with one or more field names. Allowed field names are: \code{"Name"}, \code{"Description"}, \code{"LongDescription"}, \code{"Maintainer"}, \code{"Authors\@R"}, \code{"Author"}, \code{"License"}, \code{"Imports"}, \code{"Enhances"}, \code{"Depends"}, \code{"Suggests"}, \code{"Reverse depends"}, \code{"Reverse suggests"}, \code{"Reverse enhances"}, \code{"Copyright"}, \code{"Contact"}, \code{"Note"}, \code{"MailingList"}.
+#' @param fields The list of fields to be scanned for the search term; must be a character vector with one or more field names. Allowed field names are: \code{"Name"}, \code{"Description"}, \code{"LongDescription"}, \code{"Maintainer"}, \code{"Authors@R"}, \code{"Author"}, \code{"License"}, \code{"Imports"}, \code{"Enhances"}, \code{"Depends"}, \code{"Suggests"}, \code{"Reverse depends"}, \code{"Reverse suggests"}, \code{"Reverse enhances"}, \code{"Copyright"}, \code{"Contact"}, \code{"Note"}, \code{"MailingList"}.
 #' @param mode Indicates whether matches in the field shall be combined with a logical OR or with a logical AND; accordingly, permitted values are \code{"or"} (default) and \code{"and"}. In \code{"or"} mode, every package that has the search term in any of the fields from \code{fields} generates a hit, in \code{"and"} mode the search term must be found in all fields provided to make that package a search hit.
 #' @param match Either \code{"like"} (default) or \code{"exact"}. Determines if the field content must match the search term exactly or only needs to contain it.
 #' @param display Describes where the search results shall be shown. Either \code{"viewer"} or \code{"console"}. If \code{"viewer"}, the results are shown as a formatted web page in the browser (or in RStudio's Viewer pane if the RStudio IDE is being used). If \code{results = "console"} the search results are shown as a text table in the R console.
@@ -335,7 +335,7 @@ findPackage<-function(keywords, mode = "or", case.sensitive = FALSE, always.sens
 #' @author Joachim Zuckarelli \email{joachim@@zuckarelli.de}
 #'
 #' @examples
-#' exploreFields("Hadley", c("Maintainer", "Authors@R", "Author"))
+#' \donttest{ exploreFields("Hadley", c("Maintainer", "Authors@R", "Author")) }
 
 #' @export
 exploreFields <- function(term, fields=c("Name", "Description", "LongDescription"), mode="or", match="like", display="viewer", index = NULL) {
@@ -650,7 +650,7 @@ packageElement <- function(field, value, bold.field=FALSE, bold.value=FALSE, lin
 #' @description Shows detailed CRAN information for a package.
 #'
 #' @param package Either the name of a package (capitalization does generally not matter) or the search result number shown in the results of \code{\link{findPackage}()} (the number in the \code{GO} column). Only one package is allowed here.
-#' @param brief If \code{"TRUE"}, only short an long description as well as the maintainer of the package are shown, otherwise all available fields are displayed.
+#' @param brief If \code{"TRUE"}, only title, short and long description as well as the maintainer of the package are shown, otherwise all available fields are displayed.
 #' @param show.tip If \code{"TRUE"}, tips for getting additional information on the package are shown.
 #' @param index Either a path (or URL) to a search index, or a search index that is already loaded. If no index is provided, \code{packageDetails()} creates an ad hoc search index.
 #'
@@ -660,7 +660,7 @@ packageElement <- function(field, value, bold.field=FALSE, bold.value=FALSE, lin
 #' @author Joachim Zuckarelli \email{joachim@@zuckarelli.de}
 #'
 #' @examples
-#' packageDetails("ggplot2")
+#' \donttest{ packageDetails("ggplot2") }
 #'
 #' @export
 packageDetails <- function(package, brief=FALSE, show.tip=TRUE, index=NULL) {
@@ -692,6 +692,7 @@ packageDetails <- function(package, brief=FALSE, show.tip=TRUE, index=NULL) {
         if(!is.na(searchindex$index$REVERSE.ENHANCES[go.num])) packageElement("Reverse enhances", searchindex$index$REVERSE.ENHANCES[go.num])
         if(!is.na(searchindex$index$NOTE[go.num])) packageElement("Note", searchindex$index$NOTE[go.num])
       }
+      if(!is.numeric(package)) package <- paste0("\"", package, "\"")
       if(show.tip == TRUE) cat(crayon::magenta(crayon::bold("\nTip:"), "Use", crayon::bold(paste0("go(", package,",\"manual\")")), paste0("to view the manual of package '", searchindex$index$NAME[go.num],"' and"), crayon::bold(paste0("go(", package,",\"website\")")), paste0("to visit its website (if any is provided).")),sep="")
     }
     else {

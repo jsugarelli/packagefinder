@@ -9,7 +9,7 @@ packageDetails(package, brief = FALSE, show.tip = TRUE, index = NULL)
 \arguments{
 \item{package}{Either the name of a package (capitalization does generally not matter) or the search result number shown in the results of \code{\link{findPackage}()} (the number in the \code{GO} column). Only one package is allowed here.}
 
-\item{brief}{If \code{"TRUE"}, only short an long description as well as the maintainer of the package are shown, otherwise all available fields are displayed.}
+\item{brief}{If \code{"TRUE"}, only title, short and long description as well as the maintainer of the package are shown, otherwise all available fields are displayed.}
 
 \item{show.tip}{If \code{"TRUE"}, tips for getting additional information on the package are shown.}
 
@@ -22,7 +22,7 @@ No return value.
 Shows detailed CRAN information for a package.
 }
 \examples{
-packageDetails("ggplot2")
+\donttest{ packageDetails("ggplot2") }
 
 }
 \author{

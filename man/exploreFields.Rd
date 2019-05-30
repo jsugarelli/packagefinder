@@ -10,7 +10,7 @@ exploreFields(term, fields = c("Name", "Description", "LongDescription"),
 \arguments{
 \item{term}{Search term to look for; character vector must have one element.}
 
-\item{fields}{The list of fields to be scanned for the search term; must be a character vector with one or more field names. Allowed field names are: \code{"Name"}, \code{"Description"}, \code{"LongDescription"}, \code{"Maintainer"}, \code{"Authors\@R"}, \code{"Author"}, \code{"License"}, \code{"Imports"}, \code{"Enhances"}, \code{"Depends"}, \code{"Suggests"}, \code{"Reverse depends"}, \code{"Reverse suggests"}, \code{"Reverse enhances"}, \code{"Copyright"}, \code{"Contact"}, \code{"Note"}, \code{"MailingList"}.}
+\item{fields}{The list of fields to be scanned for the search term; must be a character vector with one or more field names. Allowed field names are: \code{"Name"}, \code{"Description"}, \code{"LongDescription"}, \code{"Maintainer"}, \code{"Authors@R"}, \code{"Author"}, \code{"License"}, \code{"Imports"}, \code{"Enhances"}, \code{"Depends"}, \code{"Suggests"}, \code{"Reverse depends"}, \code{"Reverse suggests"}, \code{"Reverse enhances"}, \code{"Copyright"}, \code{"Contact"}, \code{"Note"}, \code{"MailingList"}.}
 
 \item{mode}{Indicates whether matches in the field shall be combined with a logical OR or with a logical AND; accordingly, permitted values are \code{"or"} (default) and \code{"and"}. In \code{"or"} mode, every package that has the search term in any of the fields from \code{fields} generates a hit, in \code{"and"} mode the search term must be found in all fields provided to make that package a search hit.}
 
@@ -30,7 +30,7 @@ Searches for packages on CRAN by scanning a specified set of information fields 
 Found packages are listed in alphabetical order, there is no prioritization of search hits as in \code{\link{findPackage}()}.
 }
 \examples{
-exploreFields("Hadley", c("Maintainer", "Authors@R", "Author"))
+\donttest{ exploreFields("Hadley", c("Maintainer", "Authors@R", "Author")) }
 }
 \author{
 Joachim Zuckarelli \email{joachim@zuckarelli.de}

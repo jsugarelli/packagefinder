@@ -23,7 +23,7 @@ Functions like \code{\link{findPackage}()} or \code{\link{go}()} require a searc
 providing an index, the index that is created on-the-fly does not contain CRAN download figures.
 }
 \examples{
-index <- buildIndex(filename = file.path(tempdir(), "searchindex.rdata"), download.stats = FALSE)
+\donttest{ index <- buildIndex(filename = file.path(tempdir(), "searchindex.rdata"), download.stats = FALSE) }
 
 }
 \author{

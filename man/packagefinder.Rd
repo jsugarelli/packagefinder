@@ -27,6 +27,7 @@ Currently, there are more than 13,000 R package contributions on CRAN providing 
 }
 \item packagefinder \strong{introduction}: \href{http://www.zuckarelli.de/packagefinder/tutorial.html}{A Quick Tutorial}
 \item packagefinder on \strong{GitHub}: \href{https://github.com/jsugarelli/packagefinder}{https://github.com/jsugarelli/packagefinder}
+\item packagefinder video tutorial on \strong{YouTube}: \href{https://www.youtube.com/watch?v=66Mes6_hYno}{https://www.youtube.com/watch?v=66Mes6_hYno}
 }
 }
 
