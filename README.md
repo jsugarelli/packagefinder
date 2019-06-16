@@ -129,4 +129,5 @@ Joachim Zuckarelli
 Twitter: @jsugarelli
 
 GitHub: https://github.com/jsugarelli/packagefinder
+Watch the YouTube tutorial: https://www.youtube.com/watch?v=66Mes6_hYno
 
