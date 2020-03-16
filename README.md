@@ -1,3 +1,5 @@
+# packagefinder - A brief introduction
+
 ![](packagefinder.png)
 
 # For those in a hurry: packagefinder in one minute
