@@ -1,13 +1,3 @@
----
-title: "packagefinder: A quick tutorial"
-output:
-  html_document: 
-    highlight: tango
-    toc: yes
-    toc_float: yes
-    toc_depth: 2
----
-
 ![](packagefinder.png)
 
 # For those in a hurry: packagefinder in one minute
@@ -157,7 +147,7 @@ Here again, instead of the package name you can use the ````GO```` number from t
 
 Joachim Zuckarelli
 
-Twitter: @jsugarelli
+Twitter: [@jsugarelli](https://twitter.com/jsugarelli)
 
 GitHub: https://github.com/jsugarelli/packagefinder
 Watch the YouTube tutorial: https://youtu.be/B96NMSo3nJI (Attention please: This video discusses *packagefinder* version 0.1.5; some of the newer features like reslts presentation in the web browser have not yet been available in this version)
