@@ -5,12 +5,12 @@
 \title{Searching for packages on CRAN}
 \usage{
 findPackage(keywords, mode = "or", case.sensitive = FALSE,
-  always.sensitive = NULL, weights = c(1, 2, 1, 2), display = "viewer",
+  always.sensitive = NULL, weights = c(2, 2, 1, 2), display = "viewer",
   results.longdesc = FALSE, limit.results = 15, silent = FALSE,
-  index = NULL)
+  index = NULL, advanced.ranking = TRUE, return.df = FALSE)
 }
 \arguments{
-\item{keywords}{A vector of keywords to be searched for.}
+\item{keywords}{A vector of keywords to be searched for. Instead of separate search terms, \code{keywords} can also be a query like \code{"meta AND regression"}. In this case the \code{mode} argument is ignored. Only one type of logical operator (either \code{and} or \code{and}) may be used in a query; operators are not case-sensitive.}
 
 \item{mode}{Indicates wthether the search terms in \code{keywords} shall be combined with a logical OR or with a logical AND; accordingly, permitted values are \code{"or"} (default) and \code{"and"}. In \code{"or"} mode, every package that contains \emph{at least one} of the keywords from the \code{keywords} argument is a search hit, in \code{"and"} mode generating a search hit requires \emph{all} search terms from the \code{keywords} argument to be found.}
 
@@ -20,7 +20,7 @@ findPackage(keywords, mode = "or", case.sensitive = FALSE,
 
 \item{weights}{A numeric vector describing how search hits in different fields of the a package's data shall be weighted. The first three elements of the vector are the weights assigned to hits in the package's \emph{title}, \emph{short description} and \emph{long description}, respectively. The fourth element is a factor applied to the overall score of a search hit if all search terms from the \code{keywords} argument are found (obviously only meaningful in \code{"or"} mode). All weights must be 1 or larger.}
 
-\item{display}{Describes where the search results shall be shown. Either \code{"viewer"} or \code{"console"}. If \code{"viewer"}, the results are shown as a formatted web page in the browser (or in RStudio's Viewer pane if the RStudio IDE is being used). If \code{results = "console"} the search results are shown as a text table in the R console.}
+\item{display}{Describes where the search results shall be shown. Either \code{"viewer"}, \code{"console"} or \code{"browser"}. If \code{"viewer"}, the results are shown in RStudio's Viewer pane if the RStudio IDE is being used. If \code{results = "console"} the search results are shown as a text table in the R console. \code{results = "browser"} shows the search results in the web browser.}
 
 \item{results.longdesc}{Indicates whether the packages' long descriptions shall also be included in the search results. Given the length of some long decsriptions this may make the search results harder to read.}
 
@@ -29,17 +29,23 @@ findPackage(keywords, mode = "or", case.sensitive = FALSE,
 \item{silent}{Indicates whether details of the user's search query are repeated in the console.}
 
 \item{index}{Either a path (or URL) to a search index, or a search index that is already loaded. If no index is provided, \code{findPackage()} creates an ad hoc search index.}
+
+\item{advanced.ranking}{Indicates if the ranking of search results shall be based on weights taking into account the inverse frequencies of the different search terms across all packages and the length of the matches relative to the texts they were found in. Usually, using advanced ranking (\code{advanced.ranking = TRUE}, default) gives more relevant results, especially in \code{"or"} mode when the search terms differ strongly in their frequency of occurrence across packages.}
+
+\item{return.df}{If \code{TRUE}, \code{findPackage()} returns a dataframe with the results, otherwise there is no return value. Default is \code{FALSE}.}
 }
 \value{
-No return value.
+The search results as a dataframe, if \code{df.return = TRUE}.
 }
 \description{
 Searches for packages on CRAN based on the user's specification of search terms. Considers the package name, description as well as the long description, and prioritizes the results.
 }
 \details{
 The \code{GO} column in the search results is an index number that can be used to address the found package easily with the \code{go()} function.
-The \code{DOWNL_TOTAL} column in the search results gives the overall number of downloads of the respective package since its submission to CRAN. The number is based on the figures for the RStudio CRAN mirror server.
+The \code{Total Downloads} column in the search results gives the overall number of downloads of the respective package since its submission to CRAN. The number is based on the figures for the RStudio CRAN mirror server.
 This field is only provided if the search index contains download figures. Ad hoc indices (when \code{index = NULL}) never include download statistics. Please refer to \code{\link{buildIndex}()} for more details.
+
+\code{\link{fp}()} is a shorter alias for \code{\link{findPackage}()}.
 }
 \examples{
 \donttest{
@@ -51,6 +57,10 @@ findPackage(c("text", "tables"))
 searchindex <- buildIndex()
 findPackage(keywords=c("regression", "linear"), mode="and",
    always.sensitive="GLM", index=searchindex)
+
+findPackage("meta and regression", display="browser")
+
+my.results <- findPackage("meta AND regression")
 }
 }
 \author{

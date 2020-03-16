@@ -3,6 +3,7 @@
 export(buildIndex)
 export(exploreFields)
 export(findPackage)
+export(fp)
 export(go)
 export(lastResults)
 export(packageDetails)

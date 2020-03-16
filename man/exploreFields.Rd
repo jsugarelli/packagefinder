@@ -16,7 +16,7 @@ exploreFields(term, fields = c("Name", "Description", "LongDescription"),
 
 \item{match}{Either \code{"like"} (default) or \code{"exact"}. Determines if the field content must match the search term exactly or only needs to contain it.}
 
-\item{display}{Describes where the search results shall be shown. Either \code{"viewer"} or \code{"console"}. If \code{"viewer"}, the results are shown as a formatted web page in the browser (or in RStudio's Viewer pane if the RStudio IDE is being used). If \code{results = "console"} the search results are shown as a text table in the R console.}
+\item{display}{Describes where the search results shall be shown. Either \code{"viewer"} or \code{"console"}. If \code{"viewer"}, the results are shown in RStudio's Viewer pane if the RStudio IDE is being used). If \code{results = "console"} the search results are shown as a text table in the R console.}
 
 \item{index}{Either a path (or URL) to a search index, or a search index that is already loaded. If no index is provided, \code{exploreFields()} creates an ad hoc search index.}
 }

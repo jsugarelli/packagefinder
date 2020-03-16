@@ -20,7 +20,9 @@ Number of packages covered by the period specified in \code{last.days}.
 Shows information on the latest package additions to CRAN.
 }
 \examples{
+\donttest{
 whatsNew(last.days = 3)
+}
 
 }
 \author{

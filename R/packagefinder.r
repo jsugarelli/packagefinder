@@ -4,7 +4,7 @@
 #'
 #'@section What is packagefinder? How does it benefit me?:
 #'
-#'Currently, there are more than 13,000 R package contributions on CRAN providing R with an unparalleled wealth of features. The downside of the large and increasing amount of packages is that it becomes increasingly difficult to find the right tools to tackle a specific problem. Unfortunately, CRAN does not provide any good search functionality.
+#'Currently, there are more than 15,000 R package contributions on CRAN providing R with an unparalleled wealth of features. The downside of the large and increasing amount of packages is that it becomes increasingly difficult to find the right tools to tackle a specific problem. Unfortunately, CRAN does not provide any good search functionality.
 #'
 #'\strong{packagefinder} is designed to search for CRAN packages right from the R console. The philosophy behind this package is that R users like using the R console and need a tool to do their day-to-day-work on CRAN without leaving their normal workspace, the console. In fact, the idea is that with \strong{packagefinder} you do not \emph{need} to leave the R console to work with CRAN effectively.
 #'
@@ -21,7 +21,7 @@
 #'}
 #'\item packagefinder \strong{introduction}: \href{http://www.zuckarelli.de/packagefinder/tutorial.html}{A Quick Tutorial}
 #'\item packagefinder on \strong{GitHub}: \href{https://github.com/jsugarelli/packagefinder}{https://github.com/jsugarelli/packagefinder}
-#'\item packagefinder video tutorial on \strong{YouTube}: \href{https://www.youtube.com/watch?v=66Mes6_hYno}{https://www.youtube.com/watch?v=66Mes6_hYno}
+#'\item packagefinder video tutorial on \strong{YouTube}: \href{https://youtu.be/B96NMSo3nJI}{https://youtu.be/B96NMSo3nJI} (discusses version 0.1.5)
 #'}
 #'
 #'@name packagefinder
@@ -31,16 +31,19 @@ NULL
 ###   PACKAGE PACKAGEFINDER
 ###
 ###   Author and maintainer: Joachim Zuckarelli (joachim@zuckarelli.de)
-###   Version 0.1.4
+###   Version 0.2.0
 ###
 
 
 
 .onAttach <- function(libname, pkgname){
-  packageStartupMessage(crayon::blue(crayon::bold("\npackagefinder"), "version 0.1.4\n\n"))
+  packageStartupMessage(crayon::blue("You are working with", crayon::bold("\npackagefinder"), "version 0.2.0\n"))
+  pf<-tools::CRAN_package_db()
+  if(numeric_version(pf$Version[pf$Package=="packagefinder"]) < numeric_version(utils::packageVersion("packagefinder"))) packageStartupMessage(crayon::red("Please update packagefinder to the newest version", numeric_version(pf$Version[pf$Package=="packagefinder"]), "!\n\n"))
+  else packageStartupMessage("\n")
   packageStartupMessage(crayon::green("Getting started:\n\n"))
-  packageStartupMessage(crayon::silver("* Use", crayon::cyan("findPackage(keywords, mode)"), "to search CRAN for packages, e.g.",crayon::italic("findPackage(c(\"meta\",\"regression\"), \"and\")\n\n")), sep="")
-  packageStartupMessage(crayon::silver("* Use", crayon::cyan("exploreFields(fields, term)"),"to search a term in the specified fields, e.g.", crayon::italic("exploreFields(c(\"Package\", \"Title\"), \"logistic\")\n\n")), sep="")
+  packageStartupMessage(crayon::silver("* Use", crayon::cyan("findPackage(keywords, mode)"), "to search CRAN for packages, e.g.",crayon::italic("findPackage(c(\"meta\",\"regression\"), \"and\")")," or just ", crayon::italic("findPackage(\"meta and regression\")"),".\n\n"), sep="")
+  packageStartupMessage(crayon::silver("* Use", crayon::cyan("exploreFields(fields, term)"),"to search a term in the specified fields, e.g.", crayon::italic("exploreFields(c(\"Package\", \"Title\"), \"logistic\").\n\n")), sep="")
   packageStartupMessage(crayon::silver("* Use", crayon::cyan("whatsNew()"),"to check for new packages on CRAN.\n\n"), sep="")
 
   packageStartupMessage(crayon::silver(crayon::cyan("Tip:"), "Check out the online help pages for more parameters as well as interesting functions like go(), packageDetails() or buildIndex().\n"))
@@ -48,9 +51,15 @@ NULL
 
 
 .onDetach <-function(libpath) {
-  options("packagefinder.skip.downloads"=NULL)
-  options("packagefinder.results.longdesc"=NULL)
-  options("packagefinder.lastresults"=NULL)
+  options(packagefinder.lastresults = NULL)
+  options(packagefinder.results.longdesc = NULL)
+  options(packagefinder.skip.downloads = NULL)
+  options(packagefinder.mode = NULL)
+  options(packagefinder.keywords = NULL)
+  options(packagefinder.call = NULL)
+  options(packagefinder.timediff = NULL)
+  options(packagefinder.num.results = NULL)
+  options(packagefinder.num.cran = NULL)
 }
 
 
@@ -181,22 +190,28 @@ buildIndex <- function(filename="", download.stats = FALSE) {
 #' @title Searching for packages on CRAN
 #' @description Searches for packages on CRAN based on the user's specification of search terms. Considers the package name, description as well as the long description, and prioritizes the results.
 #'
-#' @param keywords A vector of keywords to be searched for.
+#' @param keywords A vector of keywords to be searched for. Instead of separate search terms, \code{keywords} can also be a query like \code{"meta AND regression"}. In this case the \code{mode} argument is ignored. Only one type of logical operator (either \code{and} or \code{and}) may be used in a query; operators are not case-sensitive.
 #' @param mode Indicates wthether the search terms in \code{keywords} shall be combined with a logical OR or with a logical AND; accordingly, permitted values are \code{"or"} (default) and \code{"and"}. In \code{"or"} mode, every package that contains \emph{at least one} of the keywords from the \code{keywords} argument is a search hit, in \code{"and"} mode generating a search hit requires \emph{all} search terms from the \code{keywords} argument to be found.
 #' @param case.sensitive Indicates if the search shall be case sensitive, or not.
 #' @param always.sensitive A vector of search terms for which capitalization is always considered relevant (even if \code{case.sensitive = FALSE}). This allows to better reflect abbreviations like 'GLM'.
 #' @param weights A numeric vector describing how search hits in different fields of the a package's data shall be weighted. The first three elements of the vector are the weights assigned to hits in the package's \emph{title}, \emph{short description} and \emph{long description}, respectively. The fourth element is a factor applied to the overall score of a search hit if all search terms from the \code{keywords} argument are found (obviously only meaningful in \code{"or"} mode). All weights must be 1 or larger.
-#' @param display Describes where the search results shall be shown. Either \code{"viewer"} or \code{"console"}. If \code{"viewer"}, the results are shown as a formatted web page in the browser (or in RStudio's Viewer pane if the RStudio IDE is being used). If \code{results = "console"} the search results are shown as a text table in the R console.
+#' @param display Describes where the search results shall be shown. Either \code{"viewer"}, \code{"console"} or \code{"browser"}. If \code{"viewer"}, the results are shown in RStudio's Viewer pane if the RStudio IDE is being used. If \code{results = "console"} the search results are shown as a text table in the R console. \code{results = "browser"} shows the search results in the web browser.
 #' @param results.longdesc Indicates whether the packages' long descriptions shall also be included in the search results. Given the length of some long decsriptions this may make the search results harder to read.
 #' @param limit.results The maximum number of matches presented in the search results; choose a negative number to display all results
 #' @param silent Indicates whether details of the user's search query are repeated in the console.
 #' @param index Either a path (or URL) to a search index, or a search index that is already loaded. If no index is provided, \code{findPackage()} creates an ad hoc search index.
-
-#' @return No return value.
+#' @param advanced.ranking Indicates if the ranking of search results shall be based on weights taking into account the inverse frequencies of the different search terms across all packages and the length of the matches relative to the texts they were found in. Usually, using advanced ranking (\code{advanced.ranking = TRUE}, default) gives more relevant results, especially in \code{"or"} mode when the search terms differ strongly in their frequency of occurrence across packages.
+#' @param return.df If \code{TRUE}, \code{findPackage()} returns a dataframe with the results, otherwise there is no return value. Default is \code{FALSE}.
+#'
+#' @return The search results as a dataframe, if \code{df.return = TRUE}.
+#'
 #'
 #' @details The \code{GO} column in the search results is an index number that can be used to address the found package easily with the \code{go()} function.
-#' The \code{DOWNL_TOTAL} column in the search results gives the overall number of downloads of the respective package since its submission to CRAN. The number is based on the figures for the RStudio CRAN mirror server.
+#' The \code{Total Downloads} column in the search results gives the overall number of downloads of the respective package since its submission to CRAN. The number is based on the figures for the RStudio CRAN mirror server.
 #' This field is only provided if the search index contains download figures. Ad hoc indices (when \code{index = NULL}) never include download statistics. Please refer to \code{\link{buildIndex}()} for more details.
+#'
+#' \code{\link{fp}()} is a shorter alias for \code{\link{findPackage}()}.
+#'
 #'
 #' @author Joachim Zuckarelli \email{joachim@@zuckarelli.de}
 #'
@@ -210,9 +225,27 @@ buildIndex <- function(filename="", download.stats = FALSE) {
 #' searchindex <- buildIndex()
 #' findPackage(keywords=c("regression", "linear"), mode="and",
 #'    always.sensitive="GLM", index=searchindex)
+#'
+#' findPackage("meta and regression", display="browser")
+#'
+#' my.results <- findPackage("meta AND regression")
 #' }
 #' @export
-findPackage<-function(keywords, mode = "or", case.sensitive = FALSE, always.sensitive = NULL, weights = c(1,2,1,2), display = "viewer", results.longdesc = FALSE, limit.results = 15, silent = FALSE, index = NULL) {
+findPackage<-function(keywords, mode = "or", case.sensitive = FALSE, always.sensitive = NULL, weights = c(2,2,1,2), display = "viewer", results.longdesc = FALSE, limit.results = 15, silent = FALSE, index = NULL, advanced.ranking = TRUE, return.df = FALSE) {
+
+  if(!is.null(always.sensitive)) keywords = c(keywords, always.sensitive)
+  if(sum(stringr::str_detect(keywords, "[:blank:]+[aA][nN][dD][:blank:]+"))>0) {
+    keywords.list <- stringr::str_split(keywords, "[:blank:]+[aA][nN][dD][:blank:]+")
+    keywords <- unlist(keywords.list)
+    mode <- "and"
+  } else {
+    if(sum(stringr::str_detect(keywords, "[:blank:]+[oO][rR][:blank:]+"))>0) {
+      keywords.list <-stringr::str_split(keywords, "[:blank:]+[oO][rR][:blank:]+")
+      keywords <- unlist(keywords.list)
+      mode <- "or"
+    }
+  }
+
   if(!silent) {
     if(mode=="and") {
       mode.param <- "and"
@@ -238,61 +271,92 @@ findPackage<-function(keywords, mode = "or", case.sensitive = FALSE, always.sens
   searchindex <- makeIndexAvailable(index)
   if(class(searchindex) == "list"){
     score<-c()
+    m = matrix(nrow=length(searchindex$index$NAME), ncol=length(keywords))
+    m1.lengthratio <- 1
+    m2.lengthratio <- 1
+    m3.lengthratio <- 1
+
+    num.keywords = length(keywords)
+
     for(i in 1:length(searchindex$index$NAME)) {
-      found<-c()
-      m1<-0
-      m2<-0
-      m3<-0
+
       for(f in 1:length(keywords)) {
-        dm1 <- stringr::str_count(searchindex$index$NAME[i], stringr::fixed(keywords[f], ignore_case=!case.sensitive))
-        dm2 <- stringr::str_count(searchindex$index$DESC_SHORT[i], stringr::fixed(keywords[f], ignore_case=!case.sensitive))
-        dm3 <- stringr::str_count(searchindex$index$DESC_LONG[i], stringr::fixed(keywords[f], ignore_case=!case.sensitive))
-        m1 <- m1 + dm1 * weights[1]
-        m2 <- m2 + dm2 * weights[2]
-        m3 <- m3 + dm3 * weights[3]
-        found[f] <- !(dm1 + dm2 + dm3 == 0)
-      }
+        m1<-0
+        m2<-0
+        m3<-0
 
-      if(!is.null(always.sensitive)) {
-        for(f in 1:length(always.sensitive)) {
-          dm1 <- stringr::str_count(searchindex$index$NAME[i], stringr::fixed(always.sensitive[f], ignore_case=FALSE))
-          dm2 <- stringr::str_count(searchindex$index$DESC_SHORT[i], stringr::fixed(always.sensitive[f], ignore_case=FALSE))
-          dm3 <- stringr::str_count(searchindex$index$DESC_LONG[i], stringr::fixed(always.sensitive[f], ignore_case=FALSE))
-          m1 <- m1 + dm1 * weights[1]
-          m2 <- m2 + dm2 * weights[2]
-          m3 <- m3 + dm3 * weights[3]
-          found[length(keywords)+f] <- !(dm1 + dm2 + dm3 == 0)
+        if(f <= num.keywords) {
+          cs <- !case.sensitive
+        } else {
+          cs <- FALSE
         }
+        dm1 <- stringr::str_count(searchindex$index$NAME[i], stringr::fixed(keywords[f], ignore_case=cs))
+        dm2 <- stringr::str_count(searchindex$index$DESC_SHORT[i], stringr::fixed(keywords[f], ignore_case=cs))
+        dm3 <- stringr::str_count(searchindex$index$DESC_LONG[i], stringr::fixed(keywords[f], ignore_case=cs))
+        if(advanced.ranking) {
+          m1.lengthratio <- dm1 * nchar(keywords[f]) / nchar(searchindex$index$NAME[i])
+          m2.lengthratio <- dm2 * nchar(keywords[f]) / nchar(searchindex$index$DESC_SHORT[i])
+          m3.lengthratio <- dm3 * nchar(keywords[f]) / nchar(searchindex$index$DESC_LONG[i])
+        }
+        m1 <- dm1 * weights[1] * m1.lengthratio
+        m2 <- dm2 * weights[2] * m2.lengthratio
+        m3 <- dm3 * weights[3] * m3.lengthratio
+        m[i,f] <- m1 + m2 + m3
       }
-
-      if(mode == "or") score[i] <- (m1 + m2 + m3) * (weights[4] - (weights[4]-1) * (length(found[found==FALSE])!=0))
-      else score[i] <- (m1 + m2 + m3) * weights[4] * (length(found[found==FALSE])==0)
     }
+
+    m <- m / max(m, na.rm=TRUE)
+
+    inverse.keyword.weight <- c()
+    if(!advanced.ranking) {
+      inverse.keyword.weight <- rep(1, length(keywords))
+    } else {
+      for(f in 1:length(keywords)) {
+        inverse.keyword.weight[f] <- sum(m[,f]>0, na.rm=TRUE)
+      }
+      inverse.keyword.weight <- 1 / (inverse.keyword.weight / max(inverse.keyword.weight, na.rm=TRUE))
+    }
+
+    if(mode == "or") {
+      for(i in 1:length(searchindex$index$NAME)) {
+        score[i] <- (sum(m[i,] * inverse.keyword.weight, na.rm=TRUE) * (1 + (weights[4] - 1) * (sum(m[i,]==0, na.rm=TRUE)==0)))
+      }
+    } else {
+      for(i in 1:length(searchindex$index$NAME)) {
+        score[i] <- (sum(m[i,] * inverse.keyword.weight, na.rm=TRUE) * (sum(m[i,]==0, na.rm=TRUE)==0))
+      }
+    }
+
     score <- score / max(score, na.rm=TRUE) * 100
     searchindex$index$SCORE <- as.numeric(score)
 
     if(sum(searchindex$index$SCORE, na.rm=TRUE) > 0) {
-      # Show results
-      if(results.longdesc == TRUE) {
-        # res.cols <- c("SCORE", "NAME", "DESC_SHORT", "DESC_LONG", "DOWNL_TOTAL")
-        res.cols <-c(26,1,3,4,7)
-        text.align.formattable <- c("r", "l", "l", "l", "l", "l")
-        text.align.pandoc <- c("right", "left", "left", "left", "left", "left")
-      } else {
-        # res.cols <- c("SCORE", "NAME", "DESC_SHORT", "DOWNL_TOTAL", "GO")
-        res.cols <-c(26,1,3,7)
-       text.align.formattable <- c("r", "l", "l", "l", "l")
-        text.align.pandoc <- c("right", "left", "left", "left", "left")
+      outp <- searchindex$index[searchindex$index$SCORE>0, c(26,1,3,4,7)]
+      if(sum(outp$DOWNL_TOTAL, na.rm=TRUE) == 0) {
+        skip.downloads <- TRUE
+        outp$DOWNL_TOTAL <- rep(0, NROW(outp))
       }
+      else  skip.downloads <- FALSE
+      colnames(outp) <- c("Score", "Name", "Short Description", "Long Description", "Total Downloads")
 
-      res<-searchindex$index[searchindex$index$SCORE>0, res.cols]
-      res$SCORE <- round(res$SCORE,1)
-      res<-res[order(-res$SCORE, -res$DOWNL_TOTAL, tolower(res$NAME), decreasing = FALSE),]
-      res<-cbind(res,data.frame(GO = row.names(res)))
-      row.names(res)<-NULL
-      num.results <- NROW(res)
+      # Show results
+      cols <- rep(TRUE, 6)
+      if(results.longdesc == FALSE) cols[4]<-FALSE
+      cols[5]<-!skip.downloads
 
-      if(limit.results > 0 & limit.results < NROW(res)) {
+      outp$Score <- round(outp$Score, 1)
+      outp <- outp[order(-outp$Score, -outp[,"Total Downloads"], tolower(outp$Name), decreasing = FALSE),]
+      outp <- cbind(outp, data.frame(GO = row.names(outp)))
+      row.names(outp) <- NULL
+      num.results <- NROW(outp)
+
+      options(packagefinder.lastresults.full = outp)
+
+      res <- outp[,cols]
+      if(skip.downloads) outp[, NCOL(outp)-1] <- NULL
+
+
+      if(limit.results > 0 & limit.results < NROW(res) & tolower(display) != "browser") {
         res<-res[(1:limit.results),]
         top.results.msg <- paste0("Top ", limit.results, " results are shown. Use parameter 'limit.results' to increase number of results shown.")
       }
@@ -300,15 +364,19 @@ findPackage<-function(keywords, mode = "or", case.sensitive = FALSE, always.sens
 
       time.searchend<-Sys.time()
 
-      if(is.na(unique(res$DOWNL_TOTAL)[1]) & length(unique(res$DOWNL_TOTAL))==1) skip.downloads <- TRUE
-      else skip.downloads <- FALSE
-
       cat("\nResults:", crayon::bold(num.results), "out of", crayon::bold(NROW(searchindex$index)), "CRAN packages found in", round(as.numeric(time.searchend - time.searchstart, units="secs"),0), "seconds.", top.results.msg,"\n")
 
       options(packagefinder.lastresults = res)
       options(packagefinder.results.longdesc = results.longdesc)
       options(packagefinder.skip.downloads = skip.downloads)
+      options(packagefinder.mode = toupper(mode.param))
+      options(packagefinder.keywords = keywords)
+      options(packagefinder.call = sys.call())
+      options(packagefinder.timediff = round(as.numeric(time.searchend - time.searchstart, units="secs"),0))
+      options(packagefinder.num.results = num.results)
+      options(packagefinder.num.cran = NROW(searchindex$index))
       lastResults(display)
+      if(return.df) return(outp)
     } else {
       cat("\nNo results found.")
     }
@@ -318,6 +386,24 @@ findPackage<-function(keywords, mode = "or", case.sensitive = FALSE, always.sens
 }
 
 
+
+
+#' @title Searching for packages on CRAN
+#' @description Shorter alias for function \code{\link{findPackage}()}.
+#'
+#' @param ... Arguments as in \code{\link{findPackage}()}.
+#'
+#' @author Joachim Zuckarelli \email{joachim@@zuckarelli.de}
+#'
+#' @examples
+#' \donttest{
+#' fp(c("meta", "regression"))
+#' }
+#' @export
+fp <- function(...) { findPackage(...) }
+
+
+
 #' @title Searching for packages on CRAN
 #' @description Searches for packages on CRAN by scanning a specified set of information fields for a user-provided search term.
 #'
@@ -325,7 +411,7 @@ findPackage<-function(keywords, mode = "or", case.sensitive = FALSE, always.sens
 #' @param fields The list of fields to be scanned for the search term; must be a character vector with one or more field names. Allowed field names are: \code{"Name"}, \code{"Description"}, \code{"LongDescription"}, \code{"Maintainer"}, \code{"Authors@R"}, \code{"Author"}, \code{"License"}, \code{"Imports"}, \code{"Enhances"}, \code{"Depends"}, \code{"Suggests"}, \code{"Reverse depends"}, \code{"Reverse suggests"}, \code{"Reverse enhances"}, \code{"Copyright"}, \code{"Contact"}, \code{"Note"}, \code{"MailingList"}.
 #' @param mode Indicates whether matches in the field shall be combined with a logical OR or with a logical AND; accordingly, permitted values are \code{"or"} (default) and \code{"and"}. In \code{"or"} mode, every package that has the search term in any of the fields from \code{fields} generates a hit, in \code{"and"} mode the search term must be found in all fields provided to make that package a search hit.
 #' @param match Either \code{"like"} (default) or \code{"exact"}. Determines if the field content must match the search term exactly or only needs to contain it.
-#' @param display Describes where the search results shall be shown. Either \code{"viewer"} or \code{"console"}. If \code{"viewer"}, the results are shown as a formatted web page in the browser (or in RStudio's Viewer pane if the RStudio IDE is being used). If \code{results = "console"} the search results are shown as a text table in the R console.
+#' @param display Describes where the search results shall be shown. Either \code{"viewer"} or \code{"console"}. If \code{"viewer"}, the results are shown in RStudio's Viewer pane if the RStudio IDE is being used). If \code{results = "console"} the search results are shown as a text table in the R console.
 #' @param index Either a path (or URL) to a search index, or a search index that is already loaded. If no index is provided, \code{exploreFields()} creates an ad hoc search index.
 
 #' @return No return value.
@@ -438,45 +524,34 @@ exploreFields <- function(term, fields=c("Name", "Description", "LongDescription
 
 showResults <- function(res, display, results.longdesc, skip.downloads) {
   if(!is.null(res)) {
-    if(results.longdesc == TRUE) {
-      # res.cols <- c("SCORE", "NAME", "DESC_SHORT", "DESC_LONG", "DOWNL_TOTAL")
-      res.cols <-c(16,1,3,4,7)
-      text.align.formattable <- c("r", "l", "l", "l", "l", "l")
-      text.align.pandoc <- c("right", "left", "left", "left", "left", "left")
-    } else {
-      # res.cols <- c("SCORE", "NAME", "DESC_SHORT", "DOWNL_TOTAL", "GO")
-      res.cols <-c(16,1,3,7)
-      text.align.formattable <- c("r", "l", "l", "l", "l")
-      text.align.pandoc <- c("right", "left", "left", "left", "left")
-    }
+    text.align.formattable <- c("r", rep("l", NCOL(res)-1))
+    text.align.pandoc <- c("right", rep("left", NCOL(res)-1))
+
     if(tolower(display) == "viewer") {
       bold <- formattable::formatter("span", style = x ~ formattable::style("font-weight:bold; color:#4d4d4d"))
       light.color <- formattable::formatter("span", style = x ~ formattable::style("color:#8c8c8c"))
-      if("DOWNL_TOTAL" %in% names(res)) res$DOWNL_TOTAL <- formattable::comma(res$DOWNL_TOTAL, format="d", big.mark=",")
-      if(skip.downloads == FALSE & "DOWNL_TOTAL" %in% names(res)) {
-        formattable::formattable(res, align=text.align.formattable, list(
-          NAME = bold,
+      if("Total Downloads" %in% names(res)) res[,"Total Downloads"] <- formattable::comma(res[,"Total Downloads"], format="d", big.mark=",")
+      if(skip.downloads == FALSE) {
+        print(formattable::formattable(res, align=text.align.formattable, list(
+          Name = bold,
           GO = light.color,
-          SCORE = formattable::color_tile("white", "chartreuse3"),
-          formattable::area(col = DOWNL_TOTAL) ~ formattable::normalize_bar("lightblue", 0.4)
-        ))
+          Score = formattable::color_tile("white", "chartreuse3"),
+          formattable::area(col = "Total Downloads") ~ formattable::normalize_bar("lightblue", 0.4)
+        )))
       }
       else {
-        if("DOWNL_TOTAL" %in% names(res)) res$DOWNL_TOTAL<-NULL
-        formattable::formattable(res, align=text.align.formattable, list(
-          NAME = bold,
+        print(formattable::formattable(res, align=text.align.formattable, list(
+          Name = bold,
           GO = light.color,
-          SCORE = formattable::color_tile("white", "chartreuse3")
-        ))
+          Score = formattable::color_tile("white", "chartreuse3")
+        )))
       }
     } else {
-      if(skip.downloads == TRUE) {
-        if("DOWNL_TOTAL" %in% names(res)) res$DOWNL_TOTAL<-NULL
-        if(results.longdesc == TRUE) dropout <- (-5)
-        else dropout <- (-4)
-        text.align.pandoc <- text.align.pandoc[dropout]
+      if(tolower(display)=="browser") {
+        html.viewHTML()
+      } else {
+          pander::pandoc.table(res, split.table=Inf,justify=text.align.pandoc, style="grid")
       }
-      pander::pandoc.table(res, split.table=Inf,justify=text.align.pandoc, style="grid")
     }
   }
   else cat("No results available.")
@@ -486,7 +561,7 @@ showResults <- function(res, display, results.longdesc, skip.downloads) {
 #' @title Searching for packages on CRAN
 #' @description Shows the results of the last search with \code{\link{findPackage}()}.
 #'
-#' @param display Describes where the search results shall be shown. Either \code{"viewer"} or \code{"console"}. If \code{"viewer"}, the results are shown as a formatted web page in the browser (or in RStudio's Viewer pane if the RStudio IDE is being used). If \code{results = "console"} the search results are shown as a text table in the R console.
+#' @param display Describes where the search results shall be shown. Either \code{"viewer"}, \code{"console"} or \code{"browser"}. If \code{"viewer"}, the results are shown in RStudio's Viewer pane if the RStudio IDE is being used. If \code{results = "console"} the search results are shown as a text table in the R console. \code{results = "browser"} shows the search results in the web browser.
 #'
 #' @return No return value.
 #'
@@ -517,7 +592,9 @@ lastResults <- function(display = "viewer") {
 #'
 #' @author Joachim Zuckarelli \email{joachim@@zuckarelli.de}
 #' @examples
+#' \donttest{
 #' whatsNew(last.days = 3)
+#'}
 #'
 #' @export
 whatsNew <- function(last.days=0, brief = TRUE, index = NULL) {
@@ -544,7 +621,7 @@ whatsNew <- function(last.days=0, brief = TRUE, index = NULL) {
           num <- num + 1
         }
       }
-    invisible(num)
+      invisible(num)
     }
     else {
       stop("Argument last.days must be equal to or larger than zero.")

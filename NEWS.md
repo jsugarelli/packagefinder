@@ -1,3 +1,23 @@
+# packagefinder 0.2.0
+
+# Major changes
+
+* search terms can consist of full queries like "meta AND regression"
+* New display mode "browser" to view results in web browser
+* findPackage() can return search results as dataframe
+
+
+
+# packagefinder 0.1.5
+
+## Minor changes
+
+* New function fp() as short alias for findPackage().
+* New argument advanced.ranking (default: TRUE) in function findPackage() enables a more sophisticated ranking of search results that takes into account the relative frequencies of the different search terms across the packages and the length of the matches relative to the text they were found in. 
+
+
+
+
 # packagefinder 0.1.1
 
 ## Bug fixes
