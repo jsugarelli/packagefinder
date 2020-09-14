@@ -1,6 +1,6 @@
 # packagefinder - A brief introduction
 
-![](packagefinder.png)
+![packagefinder logo](man/figures/packagefinder.png)
 
 # For those in a hurry: packagefinder in one minute
 * *packagefinder* is made to search for packages on CRAN.
@@ -8,13 +8,15 @@
 * Use the ````findPackage()```` function (or its shortcut ````fp()````) to search for packages o CRAN.
 * Assume, you want to search packages with the search terms ````"meta"```` and ````"regression"```` in their name, title or description; then you can query CRAN with ````findPackage```` like this: ````findPackage(c("meta", "regression"), mode = "and")````.
 * Alternatively, you can phrase your query simply as ````findPackage("meta and regression")````.
-* Results can be displayed in the console (argument ````display = "console"````), the viewer (````display = "console"````, if you are using R Studio), or your web browser (````display = "browser"````), my favorite. So, ````fp("meta and regression", display = "browser")```` is all you need to to search CRAN for all packages relevant for meta regression and show the results as a webpage.  
+* Results can be displayed in the console (argument ````display = "console"````), the viewer (````display = "console"````, if you are using R Studio), or your web browser (````display = "browser"````), my favorite. So, ````fp("meta and regression", display = "browser")```` is all you need to to search CRAN for all packages relevant for meta regression and show the results as a webpage.
 * Apart from ````findPackage()````, *packagefinder* provides even more features to learn about packages: Use ````whatsNew()```` to find out what's new on CRAN; if you want to learn more on a specific package, query it with ````packageDetails() ````, e.g. ````packageDetails("ggplot2")```` to find out more.
+* `packagefinder` comes with an add-in for RStudio that allows you to use the `packagefinder` functionality through a graphical interface.
+
 
 
 # A bit more into the details: What is packagefinder? How does it benefit me?
 
-Currently, there are more than 15,000 R package contributions on CRAN providing R with an unparalleled wealth of features. The downside of the large and increasing amount of packages is that it becomes increasingly difficult to find the right tools to tackle a specific problem. Unfortunately, CRAN itself does not provide any good search functionality.
+Currently, there are more than 16,000 R package contributions on CRAN providing R with an unparalleled wealth of features. The downside of the large and increasing amount of packages is that it becomes increasingly difficult to find the right tools to tackle a specific problem. Unfortunately, CRAN itself does not provide any good search functionality.
 
 *packagefinder* is designed to search for CRAN packages right from the R console. The philosophy behind this package is that R users like using the R console and need a tool to do their day-to-day-work on CRAN without leaving their normal workspace, the console. In fact, the idea is that with *packagefinder* you do not *need* to leave the R console to work with CRAN effectively. 
 
@@ -79,7 +81,7 @@ Using the ````weights```` argument, you can change the **weights** put on matche
 
 The ````display```` argument lets you decide **how** you want your **search results be displayed**. You can choose to view them in the ````console````, in the ````viewer```` (if you are using R Studio) or as a special results page in the web ````browser````. The default value is ````viewer````. Anyway, give ````browser```` a try and see if you like it. One of the advantages of the browser version of the results is that you find direct links to the package documentation and can copy the R code to install a package easily. Also, the download figures of the packages are presented on the results page per default.  
 
-![Search results in the web brwoser](screenshot_web.png)
+![Search results in the web brwoser](man/figures/screenshot_web.png)
 
 There are two more arguments influencing the display of the results: With ````limit.results```` you can determine the **number of results** being displayed (default value is ````15````); if you want to have *all*  matches be displayed, use a negative value for ````limit.results````. With ````results.longdesc```` (default value is ````FALSE````) you can decide to **include the packages' long descriptions** in the search results; given display space limitations, this may make the whole search results a bit less readable.
 
@@ -143,6 +145,20 @@ Apart from ````packageDetails()````, you can also use the **````go()````** funct
 * get the package details (same as ````packageDetails("ggplot2")```).
 
 Here again, instead of the package name you can use the ````GO```` number from the ````findPackage()```` results list.
+
+
+# RStudio add-in
+
+If you want to use a graphical interface to `packagefinder` then the `packagefinder` add-in for the RStudio IDE is for you. Try it out!
+
+Here are some impressions:
+
+![Screenshot 1 of addin-in](man/figures/addin.png)
+
+All results can be expanded to show more details:
+
+![Screenshot 1 of addin-in](man/figures/addin2.png)
+
 
 
 # Contact the author

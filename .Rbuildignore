@@ -2,5 +2,5 @@
 ^\.Rproj\.user$
 ^tex2pdf.*$
 ^LICENSE$
-^.*\.png$
 ^.*gz$
+^README\.Rmd$

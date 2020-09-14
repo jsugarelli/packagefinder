@@ -4,7 +4,7 @@
 #'
 #'@section What is packagefinder? How does it benefit me?:
 #'
-#'Currently, there are more than 15,000 R package contributions on CRAN providing R with an unparalleled wealth of features. The downside of the large and increasing amount of packages is that it becomes increasingly difficult to find the right tools to tackle a specific problem. Unfortunately, CRAN does not provide any good search functionality.
+#'Currently, there are more than 16,000 R package contributions on CRAN providing R with an unparalleled wealth of features. The downside of the large and increasing amount of packages is that it becomes increasingly difficult to find the right tools to tackle a specific problem. Unfortunately, CRAN does not provide any good search functionality.
 #'
 #'\strong{packagefinder} is designed to search for CRAN packages right from the R console. The philosophy behind this package is that R users like using the R console and need a tool to do their day-to-day-work on CRAN without leaving their normal workspace, the console. In fact, the idea is that with \strong{packagefinder} you do not \emph{need} to leave the R console to work with CRAN effectively.
 #'
@@ -31,13 +31,13 @@ NULL
 ###   PACKAGE PACKAGEFINDER
 ###
 ###   Author and maintainer: Joachim Zuckarelli (joachim@zuckarelli.de)
-###   Version 0.2.0
+###   Version 0.3.0
 ###
 
 
 
 .onAttach <- function(libname, pkgname){
-  packageStartupMessage(crayon::blue("You are working with", crayon::bold("\npackagefinder"), "version 0.2.0\n"))
+  packageStartupMessage(crayon::blue("You are working with", crayon::bold("\npackagefinder"), "version 0.3.0\n"))
   pf<-tools::CRAN_package_db()
   if(numeric_version(pf$Version[pf$Package=="packagefinder"]) < numeric_version(utils::packageVersion("packagefinder"))) packageStartupMessage(crayon::red("Please update packagefinder to the newest version", numeric_version(pf$Version[pf$Package=="packagefinder"]), "!\n\n"))
   else packageStartupMessage("\n")
@@ -100,7 +100,10 @@ makeIndexAvailable <- function(address) {
       }
     }
   }
-  if (is.null(searchindex)) searchindex <- buildIndex()
+  if(is.null(searchindex)) {
+    searchindex <- getOption("packagefinder.index", NULL)
+    if(is.null(searchindex)) searchindex <- buildIndex()
+  }
   return(searchindex)
 }
 
@@ -198,10 +201,11 @@ buildIndex <- function(filename="", download.stats = FALSE) {
 #' @param display Describes where the search results shall be shown. Either \code{"viewer"}, \code{"console"} or \code{"browser"}. If \code{"viewer"}, the results are shown in RStudio's Viewer pane if the RStudio IDE is being used. If \code{results = "console"} the search results are shown as a text table in the R console. \code{results = "browser"} shows the search results in the web browser.
 #' @param results.longdesc Indicates whether the packages' long descriptions shall also be included in the search results. Given the length of some long decsriptions this may make the search results harder to read.
 #' @param limit.results The maximum number of matches presented in the search results; choose a negative number to display all results
-#' @param silent Indicates whether details of the user's search query are repeated in the console.
+#' @param silent Indicates whether any visible output is produced. Use \code{silent = TRUE} if you are only interested in getting the search results as a dataframe (with \code{return.df = TRUE}).
 #' @param index Either a path (or URL) to a search index, or a search index that is already loaded. If no index is provided, \code{findPackage()} creates an ad hoc search index.
 #' @param advanced.ranking Indicates if the ranking of search results shall be based on weights taking into account the inverse frequencies of the different search terms across all packages and the length of the matches relative to the texts they were found in. Usually, using advanced ranking (\code{advanced.ranking = TRUE}, default) gives more relevant results, especially in \code{"or"} mode when the search terms differ strongly in their frequency of occurrence across packages.
 #' @param return.df If \code{TRUE}, \code{findPackage()} returns a dataframe with the results, otherwise there is no return value. Default is \code{FALSE}.
+#' @param clipboard If \code{TRUE}, \code{findPackage()} copies the results to the clipboard.
 #'
 #' @return The search results as a dataframe, if \code{df.return = TRUE}.
 #'
@@ -226,12 +230,15 @@ buildIndex <- function(filename="", download.stats = FALSE) {
 #' findPackage(keywords=c("regression", "linear"), mode="and",
 #'    always.sensitive="GLM", index=searchindex)
 #'
-#' findPackage("meta and regression", display="browser")
+#' findPackage("meta and regression", display="console")
+#'
+#' # Alternatively, show results in browser
+#' # findPackage("meta and regression", display="browser")
 #'
 #' my.results <- findPackage("meta AND regression")
 #' }
 #' @export
-findPackage<-function(keywords, mode = "or", case.sensitive = FALSE, always.sensitive = NULL, weights = c(2,2,1,2), display = "viewer", results.longdesc = FALSE, limit.results = 15, silent = FALSE, index = NULL, advanced.ranking = TRUE, return.df = FALSE) {
+findPackage<-function(keywords, mode = "or", case.sensitive = FALSE, always.sensitive = NULL, weights = c(2,2,1,2), display = "viewer", results.longdesc = FALSE, limit.results = 15, silent = FALSE, index = NULL, advanced.ranking = TRUE, return.df = FALSE, clipboard = FALSE) {
 
   if(!is.null(always.sensitive)) keywords = c(keywords, always.sensitive)
   if(sum(stringr::str_detect(keywords, "[:blank:]+[aA][nN][dD][:blank:]+"))>0) {
@@ -246,16 +253,16 @@ findPackage<-function(keywords, mode = "or", case.sensitive = FALSE, always.sens
     }
   }
 
-  if(!silent) {
-    if(mode=="and") {
-      mode.param <- "and"
-      other.mode <- "or"
-    }
-    else {
-      mode.param <- "or"
-      other.mode <- "and"
-    }
+  if(mode=="and") {
+    mode.param <- "and"
+    other.mode <- "or"
+  }
+  else {
+    mode.param <- "or"
+    other.mode <- "and"
+  }
 
+  if(!silent) {
     msg<-"Your are searching packages for the terms"
     if(length(keywords)==1) msg<-"Your are searching packages for the term"
     expl<-"(at least one occurence of any of the search terms)"
@@ -364,7 +371,7 @@ findPackage<-function(keywords, mode = "or", case.sensitive = FALSE, always.sens
 
       time.searchend<-Sys.time()
 
-      cat("\nResults:", crayon::bold(num.results), "out of", crayon::bold(NROW(searchindex$index)), "CRAN packages found in", round(as.numeric(time.searchend - time.searchstart, units="secs"),0), "seconds.", top.results.msg,"\n")
+      if(!silent) cat("\nResults:", crayon::bold(num.results), "out of", crayon::bold(NROW(searchindex$index)), "CRAN packages found in", round(as.numeric(time.searchend - time.searchstart, units="secs"),0), "seconds.", top.results.msg,"\n")
 
       options(packagefinder.lastresults = res)
       options(packagefinder.results.longdesc = results.longdesc)
@@ -375,10 +382,20 @@ findPackage<-function(keywords, mode = "or", case.sensitive = FALSE, always.sens
       options(packagefinder.timediff = round(as.numeric(time.searchend - time.searchstart, units="secs"),0))
       options(packagefinder.num.results = num.results)
       options(packagefinder.num.cran = NROW(searchindex$index))
-      lastResults(display)
+      if(!silent) lastResults(display)
+      if(clipboard) {
+        outp.clip <- outp
+        outp.clip$`Short Description` <- stringr::str_replace_all(outp.clip$`Short Description`, "\\n", "")
+        outp.clip$`Short Description` <- stringr::str_replace_all(outp.clip$`Short Description`, "\\r", "")
+        outp.clip$`Short Description` <- stringr::str_replace_all(outp.clip$`Short Description`, "\\t", "")
+        outp.clip$`Long Description` <- stringr::str_replace_all(outp.clip$`Long Description`, "\\n", "")
+        outp.clip$`Long Description` <- stringr::str_replace_all(outp.clip$`Long Description`, "\\r", "")
+        outp.clip$`Long Description` <- stringr::str_replace_all(outp.clip$`Long Description`, "\\t", "")
+        clipr::write_clip(outp.clip, object_type="table", eos="\n")
+      }
       if(return.df) return(outp)
     } else {
-      cat("\nNo results found.")
+      if(!silent) cat("\nNo results found.")
     }
   } else {
     stop("Search index is not available. Create a search index with buidIndex().")
@@ -550,7 +567,7 @@ showResults <- function(res, display, results.longdesc, skip.downloads) {
       if(tolower(display)=="browser") {
         html.viewHTML()
       } else {
-          pander::pandoc.table(res, split.table=Inf,justify=text.align.pandoc, style="grid")
+        pander::pandoc.table(res, split.table=Inf,justify=text.align.pandoc, style="grid")
       }
     }
   }

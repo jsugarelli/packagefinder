@@ -1,10 +1,37 @@
+# packagefinder 0.3.1
+
+
+## Major changes
+
+* New RStudio add-in as a graphical interface to `packagefinder`
+
+
+## Minor changes
+
+* New logical argument `clipboard` for function `findPackage()` to copy search results to the clipboard
+* Argument `silent` will now lead to no ouputs whatsoever
+* Search index is created the first time `packagefinder` is used and then re-used in later calls
+
+
+
+# packagefinder 0.2.1
+
+## Bug fixes
+
+* Version check at startup removed as this was causing problems on some systems
+* Availability of 'browser' display option limited to Windows-based systems because it caused trouble on Linux-/Unix-based systems
+
+
+
+
 # packagefinder 0.2.0
 
-# Major changes
+## Major changes
 
 * search terms can consist of full queries like "meta AND regression"
 * New display mode "browser" to view results in web browser
 * findPackage() can return search results as dataframe
+
 
 
 

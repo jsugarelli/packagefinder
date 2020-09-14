@@ -1,10 +1,10 @@
 Package: packagefinder
 Type: Package
-Title: Comfortable Search for R Packages on CRAN Directly from the R Console
-Version: 0.2.0
+Title: Comfortable Search for R Packages on CRAN, Either Directly from the R Console or with an R Studio Add-in
+Version: 0.3.0
 Authors@R: person("Joachim", "Zuckarelli", role = c("aut", "cre"), email = "joachim@zuckarelli.de", comment = c(ORCID = "0000-0002-9280-3016"))
 Maintainer: Joachim Zuckarelli <joachim@zuckarelli.de>
-Description: Search for R packages on CRAN directly from the R console, based on the packages' titles, short and long descriptions, or other fields. Combine multiple keywords with logical operators ('and', 'or'), view detailed information on any package and keep track of the latest package contributions to CRAN.
+Description: Search for R packages on CRAN directly from the R console, based on the packages' titles, short and long descriptions, or other fields. Combine multiple keywords with logical operators ('and', 'or'), view detailed information on any package and keep track of the latest package contributions to CRAN. If you don't want to search from the R console, use the comfortable R Studio add-in.
 License: GPL-3
 Encoding: UTF-8
 BugReports: https://github.com/jsugarelli/packagefinder/issues
@@ -12,6 +12,6 @@ URL: https://github.com/jsugarelli/packagefinder/, http://www.zuckarelli.de/pack
 Repository: CRAN
 LazyData: true
 ByteCompile: true
-Imports: httr, utils, jsonlite, pander, formattable, stringr, crayon, lubridate, tidyr, textutils, htmlTable
+Imports: httr, utils, jsonlite, pander, formattable, stringr, crayon, lubridate, tidyr, textutils, htmlTable, clipr, shiny, reactable, shinyjs, shinybusy, rstudioapi
 Depends: tools (>= 3.4.0)
-RoxygenNote: 6.0.1
+RoxygenNote: 7.1.0

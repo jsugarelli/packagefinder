@@ -4,8 +4,14 @@
 \alias{exploreFields}
 \title{Searching for packages on CRAN}
 \usage{
-exploreFields(term, fields = c("Name", "Description", "LongDescription"),
-  mode = "or", match = "like", display = "viewer", index = NULL)
+exploreFields(
+  term,
+  fields = c("Name", "Description", "LongDescription"),
+  mode = "or",
+  match = "like",
+  display = "viewer",
+  index = NULL
+)
 }
 \arguments{
 \item{term}{Search term to look for; character vector must have one element.}

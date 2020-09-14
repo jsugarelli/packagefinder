@@ -1,0 +1,4 @@
+Name: packagefinder
+Description: Search packaes on CRAN.
+Binding: packagefinderAddIn
+Interactive: true

@@ -9,7 +9,7 @@ Comfortable search for R packages on CRAN directly from the R console
 \section{What is packagefinder? How does it benefit me?}{
 
 
-Currently, there are more than 15,000 R package contributions on CRAN providing R with an unparalleled wealth of features. The downside of the large and increasing amount of packages is that it becomes increasingly difficult to find the right tools to tackle a specific problem. Unfortunately, CRAN does not provide any good search functionality.
+Currently, there are more than 16,000 R package contributions on CRAN providing R with an unparalleled wealth of features. The downside of the large and increasing amount of packages is that it becomes increasingly difficult to find the right tools to tackle a specific problem. Unfortunately, CRAN does not provide any good search functionality.
 
 \strong{packagefinder} is designed to search for CRAN packages right from the R console. The philosophy behind this package is that R users like using the R console and need a tool to do their day-to-day-work on CRAN without leaving their normal workspace, the console. In fact, the idea is that with \strong{packagefinder} you do not \emph{need} to leave the R console to work with CRAN effectively.
 
