@@ -1,5 +1,13 @@
 # packagefinder 0.3.1
 
+## Bug fix
+
+Bug fixed that prevented intallation of the package on certain Linux distributions.
+
+
+
+# packagefinder 0.3.0
+
 
 ## Major changes
 

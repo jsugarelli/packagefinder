@@ -31,16 +31,18 @@ NULL
 ###   PACKAGE PACKAGEFINDER
 ###
 ###   Author and maintainer: Joachim Zuckarelli (joachim@zuckarelli.de)
-###   Version 0.3.0
+###   Version 0.3.1
 ###
 
 
 
 .onAttach <- function(libname, pkgname){
-  packageStartupMessage(crayon::blue("You are working with", crayon::bold("\npackagefinder"), "version 0.3.0\n"))
+  packageStartupMessage(crayon::blue("You are working with", crayon::bold("\npackagefinder"), "version 0.3.1\n"))
   pf<-tools::CRAN_package_db()
-  if(numeric_version(pf$Version[pf$Package=="packagefinder"]) < numeric_version(utils::packageVersion("packagefinder"))) packageStartupMessage(crayon::red("Please update packagefinder to the newest version", numeric_version(pf$Version[pf$Package=="packagefinder"]), "!\n\n"))
-  else packageStartupMessage("\n")
+  if("packagefinder" %in% pf$Package) {
+    if(numeric_version(pf$Version[pf$Package=="packagefinder"]) < numeric_version(utils::packageVersion("packagefinder"))) packageStartupMessage(crayon::red("Please update packagefinder to the newest version", numeric_version(pf$Version[pf$Package=="packagefinder"]), "!\n\n"))
+    else packageStartupMessage("\n")
+  }
   packageStartupMessage(crayon::green("Getting started:\n\n"))
   packageStartupMessage(crayon::silver("* Use", crayon::cyan("findPackage(keywords, mode)"), "to search CRAN for packages, e.g.",crayon::italic("findPackage(c(\"meta\",\"regression\"), \"and\")")," or just ", crayon::italic("findPackage(\"meta and regression\")"),".\n\n"), sep="")
   packageStartupMessage(crayon::silver("* Use", crayon::cyan("exploreFields(fields, term)"),"to search a term in the specified fields, e.g.", crayon::italic("exploreFields(c(\"Package\", \"Title\"), \"logistic\").\n\n")), sep="")

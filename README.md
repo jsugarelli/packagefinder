@@ -11,6 +11,7 @@
 * Results can be displayed in the console (argument ````display = "console"````), the viewer (````display = "console"````, if you are using R Studio), or your web browser (````display = "browser"````), my favorite. So, ````fp("meta and regression", display = "browser")```` is all you need to to search CRAN for all packages relevant for meta regression and show the results as a webpage.
 * Apart from ````findPackage()````, *packagefinder* provides even more features to learn about packages: Use ````whatsNew()```` to find out what's new on CRAN; if you want to learn more on a specific package, query it with ````packageDetails() ````, e.g. ````packageDetails("ggplot2")```` to find out more.
 * `packagefinder` comes with an add-in for RStudio that allows you to use the `packagefinder` functionality through a graphical interface.
+* Check the *packagefinder* [cheat sheet](http://www.zuckarelli.de/packagefinder/packagefinder_cheatsheet.pdf)
 
 
 
@@ -160,6 +161,11 @@ All results can be expanded to show more details:
 ![Screenshot 1 of addin-in](man/figures/addin2.png)
 
 
+# Cheat sheet
+
+A new cheat sheet for packagefinder is now available. Download it from 
+[http://www.zuckarelli.de/packagefinder/packagefinder_cheatsheet.pdf](http://www.zuckarelli.de/packagefinder/packagefinder_cheatsheet.pdf)
+
 
 # Contact the author
 
@@ -167,6 +173,6 @@ Joachim Zuckarelli
 
 Twitter: [@jsugarelli](https://twitter.com/jsugarelli)
 
-GitHub: https://github.com/jsugarelli/packagefinder
+GitHub: [https://github.com/jsugarelli/packagefinder](https://github.com/jsugarelli/packagefinder)
 Watch the YouTube tutorial: https://youtu.be/B96NMSo3nJI (Attention please: This video discusses *packagefinder* version 0.1.5; some of the newer features like reslts presentation in the web browser have not yet been available in this version)
 
