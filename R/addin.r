@@ -31,44 +31,50 @@ packagefinderAddIn <-function() {
     shiny::HTML("<p></p>"),
     shiny::tabsetPanel(
       shiny::tabPanel(title = "Search",
-            shiny::wellPanel(style = "padding: 0px; margin-top: 15px; margin-bottom: 0px;",
-                         shiny::tags$table(id = "inputs-table", style = "width: 100%; margin-top: 0px; padding: 0px",
-                                    shiny::tags$tr(style = "vertical-align:middle",
-                                            # shiny::tags$td(textInput(inputId = "txt_search", label = "", value = "")),
-                                            shiny::tags$td(style = "vertical-align:middle", shiny::tags$span(style = "margin-top:30px",
-                                                                                               shiny::selectizeInput(inputId = "txt_search",
-                                                                                                              label = "",
-                                                                                                              choices = getOption("packagefinder.lst_searchterms", c()),
-                                                                                                              options = list(create = TRUE,
-                                                                                                                             createOnBlur = TRUE,
-                                                                                                                             onChange = I("function(value) { Shiny.setInputValue('SearchTxtChange', Math.random()); }"),
-                                                                                                                             render = I("{ option_create: function(data, escape) { return('<div class=\"create\"><strong>' + escape(data.input) + '</strong></div>');} }")
-                                                                                                              )
-                                                                                               ))),
-                                            shiny::tags$td(style = "vertical-align:middle", shiny::actionButton(inputId = "btn_search", label = "Search"), shiny::actionButton(inputId = "btn_new", label = "New on CRAN")),
-                                            shiny::tags$td(width="5%"),
-                                            shiny::tags$td(style="text-align: right; vertical-align:middle",  shiny::actionButton(inputId = "btn_installsel", label = "Install Selected"),
-                                                           shiny::actionButton(inputId = "btn_close", label = "Close")),
-                                    ),
-                                    shiny::tags$tr(
-                                      shiny::tags$td(shiny::radioButtons(inputId = "rad_mode", label = "Connect search terms with", choices = c("OR", "AND"), selected = { if(getOption("packagefinder.chk_optlog", FALSE) == FALSE) "OR" else "AND" }, inline = TRUE)),
-                                      shiny::tags$td(shiny::checkboxInput(inputId = "chk_case", label = "Case sensitive search", value = getOption("packagefinder.chk_optcase", FALSE))),
-                                      shiny::tags$td(),
-                                      shiny::tags$td()
-                                    ),
-                                    shiny::tags$tr(
-                                      shiny::tags$td(),
-                                      shiny::tags$td("Always case-sensitive (comma-sep.):", shiny::textInput(inputId = "txt_alwayscase", label = NULL, value = "", width = "100%")),
-                                      shiny::tags$td(),
-                                      shiny::tags$td()
-                                    )
-                         )
-            ),
-            shiny::wellPanel(style="padding: 5px; margin-top: 15px; margin-bottom: 10px;",
-                         shiny::htmlOutput(outputId = "message")
-               ),
-               shinybusy::add_busy_spinner(spin = "fading-circle", color = "#ED5036"),
-               reactable::reactableOutput(outputId = "tbl_results")
+                      shiny::wellPanel(style = "padding: 0px; margin-top: 15px; margin-bottom: 0px;", shiny::tags$style(shiny::HTML(".selectize-control {margin-bottom: 0px;} .shiny-input-container {margin-bottom:0px}  .control-label { margin-bottom:0px; display: block;}")),
+                                       shiny::tags$table(id = "inputs-table", style = "width: 100%; margin-top: 10px; margin-bottom: 10px; padding: 0px",
+                                                         shiny::tags$tr(style = "vertical-align:middle",
+                                                                        # shiny::tags$td(textInput(inputId = "txt_search", label = "", value = "")),
+                                                                        shiny::tags$td(style = "vertical-align:middle", shiny::tags$span(style = "margin-top:0px",
+                                                                                                                                         shiny::selectizeInput(inputId = "txt_search",
+                                                                                                                                                               label = "",
+                                                                                                                                                               choices = getOption("packagefinder.lst_searchterms", c()),
+                                                                                                                                                               options = list(create = TRUE,
+                                                                                                                                                                              createOnBlur = TRUE,
+                                                                                                                                                                              onChange = I("function(value) { Shiny.setInputValue('SearchTxtChange', Math.random()); }"),
+                                                                                                                                                                              render = I("{ option_create: function(data, escape) { return('<div class=\"create\"><strong>' + escape(data.input) + '</strong></div>');} }")
+                                                                                                                                                               )
+                                                                                                                                         ))),
+                                                                        shiny::tags$td(style="vertical-align:middle", shiny::actionButton(inputId = "btn_search", label = "Search"), shiny::actionButton(inputId = "btn_new", label = "New on CRAN")),
+                                                                        shiny::tags$td(width="5%"),
+                                                                        shiny::tags$td(style="text-align: right; vertical-align:middle",  shiny::actionButton(inputId = "btn_installsel", label = "Install Selected"),
+                                                                                       shiny::actionButton(inputId = "btn_close", label = "Close")),
+                                                         ),
+                                                         shiny::tags$tr(
+                                                           shiny::tags$td(style="padding-bottom:15px", shiny::tags$style(shiny::HTML(".checkbox {margin-top:0px; }")), shiny::checkboxInput(inputId = "chk_regex", label = "Regular expression", value = getOption("packagefinder.chk_optregex", FALSE))),
+                                                           shiny::tags$td(),
+                                                           shiny::tags$td(),
+                                                           shiny::tags$td()
+                                                         ),
+                                                         shiny::tags$tr(
+                                                           shiny::tags$td(shiny::tags$style(shiny::HTML(".control-label {font-weight:700;}")), shiny::radioButtons(inputId = "rad_mode", label = "Connect search terms with", choices = c("OR", "AND"), selected = { if(getOption("packagefinder.chk_optlog", FALSE) == FALSE) "OR" else "AND" }, inline = TRUE)),
+                                                           shiny::tags$td(shiny::tags$style(shiny::HTML(".checkbox {margin-bottom:0px; vertical-align:top; }")), shiny::HTML("<b>Case-sensitivity</b>", "<br>"), shiny::checkboxInput(inputId = "chk_case", label = "Case sensitive search", value = getOption("packagefinder.chk_optcase", FALSE))),
+                                                           shiny::tags$td(),
+                                                           shiny::tags$td()
+                                                         ),
+                                                         shiny::tags$tr(
+                                                           shiny::tags$td(),
+                                                           shiny::tags$td("Always case-sensitive (comma-sep.):", shiny::textInput(inputId = "txt_alwayscase", label = NULL, value = "", width = "100%")),
+                                                           shiny::tags$td(),
+                                                           shiny::tags$td()
+                                                         )
+                                       )
+                      ),
+                      shiny::wellPanel(style="padding: 5px; margin-top: 15px; margin-bottom: 10px;",
+                                       shiny::htmlOutput(outputId = "message")
+                      ),
+                      shinybusy::add_busy_spinner(spin = "fading-circle", color = "#ED5036"),
+                      reactable::reactableOutput(outputId = "tbl_results")
       ),
       shiny::tabPanel(title = "Options",
                       shiny::wellPanel(style = "margin-top: 5px; margin-bottom: 5px; padding-left: 10px; padding-right: 10px; padding-top: 0px",
@@ -77,6 +83,7 @@ packagefinderAddIn <-function() {
                                        shiny::HTML("<H4 style = 'margin-top: 30px'>Search</H3>"),
                                        inline(shiny::numericInput("num_opthistentries", label = "", value = getOption("packagefinder.num_opthistentries", 10), min = 1, step = 1, width = "100px"), "Number entries in search history:"),
                                        shiny::checkboxInput("chk_optlog", label = "Use 'AND' as default logical operator to combine search terms", value = getOption("packagefinder.chk_optlog", FALSE), width = optwidth()),
+                                       shiny::checkboxInput("chk_optregex", label = "Use regular expressions as standard search type", value = getOption("packagefinder.chk_optregex", FALSE), width = optwidth()),
                                        shiny::checkboxInput("chk_optcase", label = "Use case-sensitive search per default", value = getOption("packagefinder.chk_optcase", FALSE), width = optwidth()),
                                        shiny::checkboxInput("chk_optdf", label = "Automatically save search results as datafame 'packagefinder.results' in the global environment", value = getOption("packagefinder.chk_optdf", FALSE), width = optwidth()),
 
@@ -85,8 +92,9 @@ packagefinderAddIn <-function() {
                                        inline(shiny::numericInput("num_optcrandays", label = "", value = getOption("packagefinder.num_optcrandays", 3), min = 1, step = 1, width = "100px"), "Number of days for 'New on CRAN' search:"),
                                        shiny::HTML("<H4 style = 'margin-top: 30px'>Search results</H3>"),
                                        shiny::checkboxInput("chk_optzebra", label = "Striped table (zebra-style)", value = getOption("packagefinder.chk_optzebra", FALSE), width = optwidth()),
-                                       inline(shiny::selectInput("sel_optnumresults", label = "", choices = c("10" = 10, "25" = 25, "50" = 50, "100" = 100), selected = getOption("packagefinder.sel_optnumresults", 10), width = "100px"), "Number of results per page:")
-                       )
+                                       inline(shiny::selectInput("sel_optnumresults", label = "", choices = c("10" = 10, "25" = 25, "50" = 50, "100" = 100), selected = getOption("packagefinder.sel_optnumresults", 10), width = "100px"), "Number of results per page:"),
+                                       shiny::p(shiny::actionButton(inputId = "btn_saveoptions", label = "Save Options"))
+                      )
       )
     )
   )
@@ -209,57 +217,57 @@ packagefinderAddIn <-function() {
     output$tbl_results <- reactable::renderReactable({
       if(!is.na(r$df$Score[1])) {
         reactable::reactable(data = r$df,
-                  details = reactable::colDef(
-                    name = "Details",
-                    html = TRUE,
-                    width = 80,
-                    details = function(index) {
-                      getPackageDetailsHTML(shiny::isolate(r$df_ext[which(r$df_ext$Package == getPackageNameFromHTML(r$df[index, "Name"])),]))
-                    }
-                  ),
-                  columns = list(
-                    .selection = reactable::colDef(show = FALSE),
-                    Score = reactable::colDef(
-                      format = reactable::colFormat(separators = TRUE, digits = 1),
-                      width = 100,
-                      style = function(value) {
-                        if(NROW(r$df) == 1 | NROW(unique(r$df$Score)) == 1) {
-                          color = "#05B905"
-                        }
-                        else {
-                          normalized <- (value - min(r$df$Score)) / (max(r$df$Score) - min(r$df$Score))
-                          color <- grDevices::rgb(grDevices::colorRamp(c("#FFFFFF", "#05B905"))(normalized), maxColorValue = 255)
-                        }
-                        return(list(background = color))
-                      }
-                    ),
-                    Name = reactable::colDef(html = TRUE, width = 220, style="background: #FCFBFA;"),
-                    ActionPDF = reactable::colDef(name = "", width = 50, filterable = FALSE, sortable = FALSE, html = TRUE),
-                    ActionWeb = reactable::colDef(name = "", width = 50, filterable = FALSE, sortable = FALSE, html = TRUE),
-                    ActionGitHub = reactable::colDef(name = "", width = 50, filterable = FALSE, sortable = FALSE, html = TRUE),
-                    Installed = reactable::colDef(name = "Installed", filterable = FALSE, html = TRUE, width = 200),
-                    Favorite = reactable::colDef(name = "Favorite", width = 100, filterable = FALSE, sortable = TRUE, align = "center", html = TRUE)
-                  ),
-                  filterable = TRUE,
-                  selection = "multiple",
-                  showPageSizeOptions = TRUE,
-                  defaultPageSize = as.numeric(input$sel_optnumresults),
-                  striped = input$chk_optzebra,
-                  showSortable = TRUE,
-                  highlight = TRUE,
-                  rowStyle = list(cursor = "pointer"),
-                  theme = reactable::reactableTheme(
-                    rowSelectedStyle = list(backgroundColor = "#eee", boxShadow = "inset 2px 0 0 0 #ed5036")
-                  ),
-                  onClick = reactable::JS(
-                    "
+                             details = reactable::colDef(
+                               name = "Details",
+                               html = TRUE,
+                               width = 80,
+                               details = function(index) {
+                                 getPackageDetailsHTML(shiny::isolate(r$df_ext[which(r$df_ext$Package == getPackageNameFromHTML(r$df[index, "Name"])),]))
+                               }
+                             ),
+                             columns = list(
+                               .selection = reactable::colDef(show = FALSE),
+                               Score = reactable::colDef(
+                                 format = reactable::colFormat(separators = TRUE, digits = 1),
+                                 width = 100,
+                                 style = function(value) {
+                                   if(NROW(r$df) == 1 | NROW(unique(r$df$Score)) == 1) {
+                                     color = "#05B905"
+                                   }
+                                   else {
+                                     normalized <- (value - min(r$df$Score)) / (max(r$df$Score) - min(r$df$Score))
+                                     color <- grDevices::rgb(grDevices::colorRamp(c("#FFFFFF", "#05B905"))(normalized), maxColorValue = 255)
+                                   }
+                                   return(list(background = color))
+                                 }
+                               ),
+                               Name = reactable::colDef(html = TRUE, width = 220, style="background: #FCFBFA;"),
+                               ActionPDF = reactable::colDef(name = "", width = 50, filterable = FALSE, sortable = FALSE, html = TRUE),
+                               ActionWeb = reactable::colDef(name = "", width = 50, filterable = FALSE, sortable = FALSE, html = TRUE),
+                               ActionGitHub = reactable::colDef(name = "", width = 50, filterable = FALSE, sortable = FALSE, html = TRUE),
+                               Installed = reactable::colDef(name = "Installed", filterable = FALSE, html = TRUE, width = 200),
+                               Favorite = reactable::colDef(name = "Favorite", width = 100, filterable = FALSE, sortable = TRUE, align = "center", html = TRUE)
+                             ),
+                             filterable = TRUE,
+                             selection = "multiple",
+                             showPageSizeOptions = TRUE,
+                             defaultPageSize = as.numeric(input$sel_optnumresults),
+                             striped = input$chk_optzebra,
+                             showSortable = TRUE,
+                             highlight = TRUE,
+                             rowStyle = list(cursor = "pointer"),
+                             theme = reactable::reactableTheme(
+                               rowSelectedStyle = list(backgroundColor = "#eee", boxShadow = "inset 2px 0 0 0 #ed5036")
+                             ),
+                             onClick = reactable::JS(
+                               "
                       function(rowInfo, colInfo) {
                         if (window.Shiny) {
                           Shiny.onInputChange('clicked', { column: colInfo.id, index: rowInfo.index + 1, rand: Math.random() })
                         }
                       }
                     "
-                  )
+                             )
         )
       }
       else {
@@ -310,17 +318,18 @@ packagefinderAddIn <-function() {
     })
 
     # Options
-    shiny::observeEvent(input$num_optcrandays, { options("packagefinder.num_optcrandays" = input$num_optcrandays) })
-    shiny::observeEvent(input$num_opthistentries, { options("packagefinder.num_opthistentries" = input$num_opthistentries) })
-    shiny::observeEvent(input$chk_optcase, {
+    shiny::observeEvent(input$btn_saveoptions, {
+      options("packagefinder.num_optcrandays" = input$num_optcrandays)
+      options("packagefinder.num_opthistentries" = input$num_opthistentries)
       shiny::updateCheckboxInput(session, "chk_case", value = input$chk_optcase)
-      options("packagefinder.chk_optcase" = input$chk_optcase) })
-    shiny::observeEvent(input$chk_optdf, { options("packagefinder.chk_optdf" = input$chk_optdf) })
-    shiny::observeEvent(input$chk_optlog, {
+      options("packagefinder.chk_optcase" = input$chk_optcase)
+      options("packagefinder.chk_optdf" = input$chk_optdf)
       shiny::updateRadioButtons(session, "rad_mode", selected = { if(input$chk_optlog == FALSE) "OR" else "AND" })
-      options("packagefinder.chk_optlog" = input$chk_optlog) })
-    shiny::observeEvent(input$chk_optzebra, { options("packagefinder.chk_optzebra" = input$chk_optzebra) })
-    shiny::observeEvent(input$sel_optnumresults, { options("packagefinder.sel_optnumresults" = input$sel_optnumresults) })
+      options("packagefinder.chk_optlog" = input$chk_optlog)
+      options("packagefinder.chk_optzebra" = input$chk_optzebra)
+      options("packagefinder.chk_optregex" = input$chk_optregex)
+      options("packagefinder.sel_optnumresults" = input$sel_optnumresults)
+    })
   }
 
   viewer <- shiny::dialogViewer(dialogName = "packagefinder - Search for packages", width=1800, height=1000)

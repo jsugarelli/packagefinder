@@ -37,7 +37,7 @@ getPackageDetailsHTML <- function(df) {
     "Reverse imports",
     "Reverse suggests"
   )
-
+  
   headers <- c(
     "Name",
     "Short description",
@@ -57,7 +57,7 @@ getPackageDetailsHTML <- function(df) {
     "Reverse imports",
     "Reverse suggests"
   )
-
+  
   placeholders <- c(
     NA,
     NA,
@@ -118,7 +118,7 @@ getPackageDetailsHTML <- function(df) {
     NA,
     NA
   )
-
+  
   html <- "<div style=\"background-color: #FCFAFA; padding-left: 20px\">"
   for(i in 1:NROW(fields)) {
     if(!is.na(df[1, fields[i]])) {
@@ -186,7 +186,8 @@ processSearch <- function(search = TRUE, input, package.list) {
         }
         mode <- tolower(input$rad_mode)
         terms <- scan(text = input$txt_search, what = "character")
-        res <- findPackage(terms, silent = TRUE, return.df = TRUE, mode = mode, case.sensitive = case.sensitive, always.sensitive = always.sensitive, index = getOption("packagefinder.index", NULL))
+        if(!input$chk_regex) res <- findPackage(terms, silent = TRUE, return.df = TRUE, mode = mode, case.sensitive = case.sensitive, always.sensitive = always.sensitive, index = getOption("packagefinder.index", NULL))
+        else res <- findPackage(query=terms, silent = TRUE, return.df = TRUE, mode = mode, case.sensitive = case.sensitive, always.sensitive = always.sensitive, index = getOption("packagefinder.index", NULL))
       }
     }
   }
@@ -202,7 +203,7 @@ processSearch <- function(search = TRUE, input, package.list) {
   }
   if(!is.null(res)) {
     num.results <- NROW(res)
-
+    
     res[,"Long Description"] <- NULL
     orig.name <- res$Name
     res$GO <- NULL
@@ -226,7 +227,7 @@ processSearch <- function(search = TRUE, input, package.list) {
         }
       }
     }
-
+    
     for(i in 1:NROW(res)) {
       if(orig.name[i] %in% inst[,"Package"]) {
         res$Installed[i] = "Installed"
@@ -235,19 +236,19 @@ processSearch <- function(search = TRUE, input, package.list) {
         res$Installed[i] <- paste0("<img src=\"https://www.zuckarelli.de/files/download-col.png\" style=\"height:32px\"
                 title = \"Install package '", orig.name[i] , "' (with dependencies)\"/>")
       }
-
+      
       res$ActionPDF[i] <- buildLink(
         link.url = paste0("https://cran.r-project.org/web/packages/", res$Name[i], "\\", res$Name[i], ".PDF"),
         image.url = "https://www.zuckarelli.de/files/PDF-col.png",
         tooltip = paste0("PDF manual of package '", res$Name[i], "'")
       )
-
+      
       res$ActionWeb[i] <- buildLink(
         link.url = paste0("https://cran.r-project.org/web/", res$Name[i]),
         image.url = "https://www.zuckarelli.de/files/r-col.png",
         tooltip = paste0("CRAN website of package '", res$Name[i], "'")
       )
-
+      
       github.url <- df_ext$GitHub[which(df_ext$Package == res$Name[i])]
       if(!is.na(github.url)) {
         res$ActionGitHub[i] <- buildLink(
@@ -260,13 +261,13 @@ processSearch <- function(search = TRUE, input, package.list) {
         res$ActionGitHub[i] <- ""
       }
     }
-
+    
     res$Name = paste0("<span style=\"font-weight:bold\">", res$Name, "</span>")
   }
   else {
     num.results <- 0
   }
-
+  
   return(list(df = res, df_ext = df_ext, num.results = num.results))
 }
 
@@ -288,6 +289,7 @@ getPackageFinderCode <- function(input, search = TRUE, cran.days = 3) {
     terms <- scan(text = input$txt_search, what = "character")
     if(NROW(terms) > 1) terms <- paste0("c(", paste0(paste0("\"", terms, "\""), collapse = ", "), ")")
     else terms <- paste0("\"", terms, "\"")
+    if(input$chk_regex) terms <- paste0("query = ", terms)
     code <- paste0("findPackage(", terms, mode, case.sensitive, always.sensitive, ")")
   }
   else {

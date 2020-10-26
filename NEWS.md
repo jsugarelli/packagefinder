@@ -1,8 +1,17 @@
+# packagefinder 0.3.2
+
+## Minor changes
+
+* `findPackage()` and the RStudio add-in now support search with regular expressions (new argument `query` in `findPackage()`)
+* Button to save options in the RStudio add-in added to ensure correct storing of add-in default values.
+
+
+
 # packagefinder 0.3.1
 
 ## Bug fix
 
-Bug fixed that prevented intallation of the package on certain Linux distributions.
+* Bug fixed that prevented installation of the package on certain Linux distributions.
 
 
 

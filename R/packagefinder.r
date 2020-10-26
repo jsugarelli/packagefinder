@@ -31,13 +31,13 @@ NULL
 ###   PACKAGE PACKAGEFINDER
 ###
 ###   Author and maintainer: Joachim Zuckarelli (joachim@zuckarelli.de)
-###   Version 0.3.1
+###   Version 0.3.2
 ###
 
 
 
 .onAttach <- function(libname, pkgname){
-  packageStartupMessage(crayon::blue("You are working with", crayon::bold("\npackagefinder"), "version 0.3.1\n"))
+  packageStartupMessage(crayon::blue("You are working with", crayon::bold("\npackagefinder"), "version 0.3.2\n"))
   pf<-tools::CRAN_package_db()
   if("packagefinder" %in% pf$Package) {
     if(numeric_version(pf$Version[pf$Package=="packagefinder"]) < numeric_version(utils::packageVersion("packagefinder"))) packageStartupMessage(crayon::red("Please update packagefinder to the newest version", numeric_version(pf$Version[pf$Package=="packagefinder"]), "!\n\n"))
@@ -196,7 +196,8 @@ buildIndex <- function(filename="", download.stats = FALSE) {
 #' @description Searches for packages on CRAN based on the user's specification of search terms. Considers the package name, description as well as the long description, and prioritizes the results.
 #'
 #' @param keywords A vector of keywords to be searched for. Instead of separate search terms, \code{keywords} can also be a query like \code{"meta AND regression"}. In this case the \code{mode} argument is ignored. Only one type of logical operator (either \code{and} or \code{and}) may be used in a query; operators are not case-sensitive.
-#' @param mode Indicates wthether the search terms in \code{keywords} shall be combined with a logical OR or with a logical AND; accordingly, permitted values are \code{"or"} (default) and \code{"and"}. In \code{"or"} mode, every package that contains \emph{at least one} of the keywords from the \code{keywords} argument is a search hit, in \code{"and"} mode generating a search hit requires \emph{all} search terms from the \code{keywords} argument to be found.
+#' @param query A vector of regular expressions (regex) to match against package name and descriptions; alternative to \code{keywords}, if both are provided the regular expressions search will prevail, and \code{keywords} will be ignored.
+#' @param mode Indicates whether the search terms in \code{keywords} shall be combined with a logical OR or with a logical AND; accordingly, permitted values are \code{"or"} (default) and \code{"and"}. In \code{"or"} mode, every package that contains \emph{at least one} of the keywords from the \code{keywords} argument is a search hit, in \code{"and"} mode generating a search hit requires \emph{all} search terms from the \code{keywords} argument to be found.
 #' @param case.sensitive Indicates if the search shall be case sensitive, or not.
 #' @param always.sensitive A vector of search terms for which capitalization is always considered relevant (even if \code{case.sensitive = FALSE}). This allows to better reflect abbreviations like 'GLM'.
 #' @param weights A numeric vector describing how search hits in different fields of the a package's data shall be weighted. The first three elements of the vector are the weights assigned to hits in the package's \emph{title}, \emph{short description} and \emph{long description}, respectively. The fourth element is a factor applied to the overall score of a search hit if all search terms from the \code{keywords} argument are found (obviously only meaningful in \code{"or"} mode). All weights must be 1 or larger.
@@ -240,7 +241,7 @@ buildIndex <- function(filename="", download.stats = FALSE) {
 #' my.results <- findPackage("meta AND regression")
 #' }
 #' @export
-findPackage<-function(keywords, mode = "or", case.sensitive = FALSE, always.sensitive = NULL, weights = c(2,2,1,2), display = "viewer", results.longdesc = FALSE, limit.results = 15, silent = FALSE, index = NULL, advanced.ranking = TRUE, return.df = FALSE, clipboard = FALSE) {
+findPackage<-function(keywords = NULL, query = NULL, mode = "or", case.sensitive = FALSE, always.sensitive = NULL, weights = c(2,2,1,2), display = "viewer", results.longdesc = FALSE, limit.results = 15, silent = FALSE, index = NULL, advanced.ranking = TRUE, return.df = FALSE, clipboard = FALSE) {
 
   if(!is.null(always.sensitive)) keywords = c(keywords, always.sensitive)
   if(sum(stringr::str_detect(keywords, "[:blank:]+[aA][nN][dD][:blank:]+"))>0) {
@@ -265,13 +266,19 @@ findPackage<-function(keywords, mode = "or", case.sensitive = FALSE, always.sens
   }
 
   if(!silent) {
-    msg<-"Your are searching packages for the terms"
-    if(length(keywords)==1) msg<-"Your are searching packages for the term"
-    expl<-"(at least one occurence of any of the search terms)"
-    if(mode.param=="and") expl<-"(matches must have at least one occurence of each of the search terms)."
-
-    cat(crayon::cyan(paste(append(msg, paste(paste("'", keywords, "'", sep=""), collapse=", ")))))
-    if(length(keywords)>1) cat(crayon::cyan(" in", crayon::bold(mode.param), "mode", expl),sep="")
+    if(is.null(query)){
+      msg<-"Your are searching packages for the terms"
+      if(length(keywords)==1) msg<-"Your are searching packages for the term"
+      expl<-"(at least one occurence of any of the search terms)"
+      if(mode.param=="and") expl<-"(matches must have at least one occurence of each of the search terms)."
+      cat(crayon::cyan(paste(append(msg, paste(paste("'", keywords, "'", sep=""), collapse=", ")))))
+      if(length(keywords)>1) cat(crayon::cyan(" in", crayon::bold(mode.param), "mode", expl),sep="")
+    }
+    else {
+      msg <- "You are matching the regex condition: "
+      regex <- paste0(query, collapse = paste0(" ", mode.param, " "))
+      cat(crayon::cyan(paste0(msg, regex)))
+    }
 
     cat(crayon::cyan("\n\nPlease wait while index is being searched...\n"))
   }
@@ -280,16 +287,23 @@ findPackage<-function(keywords, mode = "or", case.sensitive = FALSE, always.sens
   searchindex <- makeIndexAvailable(index)
   if(class(searchindex) == "list"){
     score<-c()
-    m = matrix(nrow=length(searchindex$index$NAME), ncol=length(keywords))
+
+    num.keywords = length(keywords)
+    if(!is.null(query)) {
+      num.keywords <- length(query)
+      advanced.ranking = FALSE
+    }
+
+    m = matrix(nrow=length(searchindex$index$NAME), ncol=num.keywords)
+
     m1.lengthratio <- 1
     m2.lengthratio <- 1
     m3.lengthratio <- 1
 
-    num.keywords = length(keywords)
 
     for(i in 1:length(searchindex$index$NAME)) {
 
-      for(f in 1:length(keywords)) {
+      for(f in 1:num.keywords) {
         m1<-0
         m2<-0
         m3<-0
@@ -299,9 +313,17 @@ findPackage<-function(keywords, mode = "or", case.sensitive = FALSE, always.sens
         } else {
           cs <- FALSE
         }
-        dm1 <- stringr::str_count(searchindex$index$NAME[i], stringr::fixed(keywords[f], ignore_case=cs))
-        dm2 <- stringr::str_count(searchindex$index$DESC_SHORT[i], stringr::fixed(keywords[f], ignore_case=cs))
-        dm3 <- stringr::str_count(searchindex$index$DESC_LONG[i], stringr::fixed(keywords[f], ignore_case=cs))
+
+        if(is.null(query)) {
+          dm1 <- stringr::str_count(searchindex$index$NAME[i], stringr::fixed(keywords[f], ignore_case=cs))
+          dm2 <- stringr::str_count(searchindex$index$DESC_SHORT[i], stringr::fixed(keywords[f], ignore_case=cs))
+          dm3 <- stringr::str_count(searchindex$index$DESC_LONG[i], stringr::fixed(keywords[f], ignore_case=cs))
+        }
+        else {
+          dm1 <- length(stringr::str_match_all(searchindex$index$NAME[i], stringr::regex(query[f], ignore_case = !case.sensitive))[[1]])
+          dm2 <- length(stringr::str_match_all(searchindex$index$DESC_SHORT[i], stringr::regex(query[f], ignore_case = !case.sensitive))[[1]])
+          dm3 <- length(stringr::str_match_all(searchindex$index$DESC_LONG[i], stringr::regex(query[f], ignore_case = !case.sensitive))[[1]])
+        }
         if(advanced.ranking) {
           m1.lengthratio <- dm1 * nchar(keywords[f]) / nchar(searchindex$index$NAME[i])
           m2.lengthratio <- dm2 * nchar(keywords[f]) / nchar(searchindex$index$DESC_SHORT[i])
@@ -318,9 +340,9 @@ findPackage<-function(keywords, mode = "or", case.sensitive = FALSE, always.sens
 
     inverse.keyword.weight <- c()
     if(!advanced.ranking) {
-      inverse.keyword.weight <- rep(1, length(keywords))
+      inverse.keyword.weight <- rep(1, num.keywords)
     } else {
-      for(f in 1:length(keywords)) {
+      for(f in 1:num.keywords) {
         inverse.keyword.weight[f] <- sum(m[,f]>0, na.rm=TRUE)
       }
       inverse.keyword.weight <- 1 / (inverse.keyword.weight / max(inverse.keyword.weight, na.rm=TRUE))
@@ -379,7 +401,14 @@ findPackage<-function(keywords, mode = "or", case.sensitive = FALSE, always.sens
       options(packagefinder.results.longdesc = results.longdesc)
       options(packagefinder.skip.downloads = skip.downloads)
       options(packagefinder.mode = toupper(mode.param))
-      options(packagefinder.keywords = keywords)
+      if(is.null(query)) {
+        options(packagefinder.keywords = keywords)
+        options(packagefinder.searchtype = "keywords")
+      }
+      else {
+        options(packagefinder.keywords = query)
+        options(packagefinder.searchtype = "query")
+      }
       options(packagefinder.call = sys.call())
       options(packagefinder.timediff = round(as.numeric(time.searchend - time.searchstart, units="secs"),0))
       options(packagefinder.num.results = num.results)

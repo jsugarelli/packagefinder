@@ -5,7 +5,8 @@
 \title{Searching for packages on CRAN}
 \usage{
 findPackage(
-  keywords,
+  keywords = NULL,
+  query = NULL,
   mode = "or",
   case.sensitive = FALSE,
   always.sensitive = NULL,
@@ -23,7 +24,9 @@ findPackage(
 \arguments{
 \item{keywords}{A vector of keywords to be searched for. Instead of separate search terms, \code{keywords} can also be a query like \code{"meta AND regression"}. In this case the \code{mode} argument is ignored. Only one type of logical operator (either \code{and} or \code{and}) may be used in a query; operators are not case-sensitive.}
 
-\item{mode}{Indicates wthether the search terms in \code{keywords} shall be combined with a logical OR or with a logical AND; accordingly, permitted values are \code{"or"} (default) and \code{"and"}. In \code{"or"} mode, every package that contains \emph{at least one} of the keywords from the \code{keywords} argument is a search hit, in \code{"and"} mode generating a search hit requires \emph{all} search terms from the \code{keywords} argument to be found.}
+\item{query}{A vector of regular expressions (regex) to match against package name and descriptions; alternative to \code{keywords}, if both are provided the regular expressions search will prevail, and \code{keywords} will be ignored.}
+
+\item{mode}{Indicates whether the search terms in \code{keywords} shall be combined with a logical OR or with a logical AND; accordingly, permitted values are \code{"or"} (default) and \code{"and"}. In \code{"or"} mode, every package that contains \emph{at least one} of the keywords from the \code{keywords} argument is a search hit, in \code{"and"} mode generating a search hit requires \emph{all} search terms from the \code{keywords} argument to be found.}
 
 \item{case.sensitive}{Indicates if the search shall be case sensitive, or not.}
 

@@ -26,10 +26,12 @@ html.viewHTML <- function() {
 
 
 html.header <- function() {
- func.call <- deparse(getOption("packagefinder.call", ""))
- call.info <- paste0("<form>Original call: <input type=\"text\" readonly size=", round(nchar(func.call)*1.5,0)," style=\"border:0px;font-family:'Cutive Mono';font-size:17px\"  value='", func.call,"' id=\"code\"><br><input type=\"button\" value=\"Copy to clipboard\" class=\"button\" onclick=\"var copyText=document.getElementById('code');copyText.select(); document.execCommand('copy')\"></form>")
- keywords.info <- paste(paste0("<span style=\"font-weight:bold;\">", getOption("packagefinder.keywords", ""), "</span>"), collapse=paste0(" <span style=\"color:#cfcfcf;\">", getOption("packagefinder.mode", ""), "</span> "))
- html.code <- paste0("
+  func.call <- deparse(getOption("packagefinder.call", ""))
+  call.info <- paste0("<form>Original call: <input type=\"text\" readonly size=", round(nchar(func.call)*1.5,0)," style=\"border:0px;font-family:'Cutive Mono';font-size:17px\"  value='", func.call,"' id=\"code\"><br><input type=\"button\" value=\"Copy to clipboard\" class=\"button\" onclick=\"var copyText=document.getElementById('code');copyText.select(); document.execCommand('copy')\"></form>")
+  keywords.info <- paste(paste0("<span style=\"font-weight:bold;\">", getOption("packagefinder.keywords", ""), "</span>"), collapse=paste0(" <span style=\"color:#cfcfcf;\">", getOption("packagefinder.mode", ""), "</span> "))
+  if(getOption("packagefinder.searchtype", "") == "query") searchtype <- " (regular expression)"
+  else searchtype <- " (keywords)"
+  html.code <- paste0("
     <table>
       <tr>
         <td style=\"width:20%\">
@@ -38,7 +40,7 @@ html.header <- function() {
         <td style=\"padding-left:20px; width:80%\">
           <p style=\"font-size:36px;\">Search Results</p>
           <p>", call.info, "</p>
-          <p>Search query: ", keywords.info, "</p>
+          <p>Search", searchtype, ": ", keywords.info, "</p>
           <p><span style=\"font-weight:bold\">", getOption("packagefinder.num.results", "") ,"</span> of <span style=\"font-weight:bold\">", getOption("packagefinder.num.cran", ""), "</span> CRAN packages found in <span style=\"font-weight:bold\">", getOption("packagefinder.timediff", ""), "</span> seconds.</p>
         </td>
       </tr>
@@ -58,7 +60,7 @@ html.colorscore <- function(scores) {
   red <- format(as.hexmode(255-round(255 * scores/100,0)), width=2)
   green <- format(as.hexmode(255), width=2)
   blue <- format(as.hexmode(255-round(255 * scores/100,0)), width=2)
-
+  
   return(paste0("#", red, green, blue))
 }
 
@@ -76,9 +78,9 @@ html.formatdf <- function(df) {
   keywords <- getOption("packagefinder.keywords", NULL)
   df[,"Long Description"] <- textutils::HTMLencode(df[,"Long Description"])
   df[,NCOL(df)] <- NULL    # Cut-off GO number
-#  df[, "Score"] <- paste0(format(df[, "Score"], nsmall=1), "<span style=\"padding-left:10px; color:", html.colorscore(df[, "Score"]),"\">", html.getbar(df[, "Score"]), "</span>")
+  #  df[, "Score"] <- paste0(format(df[, "Score"], nsmall=1), "<span style=\"padding-left:10px; color:", html.colorscore(df[, "Score"]),"\">", html.getbar(df[, "Score"]), "</span>")
   df[, "Score"] <- paste0(format(df[, "Score"], nsmall=1), "<span style=\"padding-left:10px; color:#1ddb1d\">", html.getbar(df[, "Score"]), "</span>")
-
+  
   if("Total Downloads" %in% colnames(df)) df[,"Total Downloads"] <- NULL
   df[,"Total Downloads"] <- paste0("<img src=\"https://cranlogs.r-pkg.org/badges/grand-total/", df$Name,"\"/>")
   linkspart.manual <- paste0("<a target=\"_blank\" href=\"https://cran.r-project.org/web/packages/", df$Name, "/", df$Name, ".pdf\"><img style=\"align-vertical:middle; padding-right:5px; width:28px\" src=\"http://www.zuckarelli.de/files/pdf-col.png\" /></a>")
@@ -87,13 +89,13 @@ html.formatdf <- function(df) {
   df$Links <- paste0("<div>", linkspart.manual, linkspart.cranpage, linkspart.google, "</div>")
   df[,"Install code"] <- paste0("<form> <input type=\"button\" class=\"button\" value=\"Copy\" onclick=\"var copyText=document.getElementById('install_",df$Name,"');copyText.select(); document.execCommand('copy')\"><input type \"text\" style=\"position: relative; left: -10000px;\" id=\"install_", df$Name,"\" value=\'install.packages(\"",df$Name,"\", dependencies = TRUE)'></form>")
   df$Name <- paste0("<a href=\"https://cran.r-project.org/package=", df$Name, "\">", df$Name, "</a>")
-
+  
   for(i in 1:NROW(keywords)) {
     df$Name <- gsub(paste0("(.*^=",keywords[i],")"), "<span style=\"background-color:#e6f1ff\">\\1</span>", df$Name, ignore.case = TRUE, perl=TRUE)
     df[,"Short Description"] <- gsub(paste0("(",keywords[i],")"), "<span style=\"background-color:#e6f1ff\">\\1</span>", df[,"Short Description"], ignore.case = TRUE, perl=TRUE)
     df[,"Long Description"] <- gsub(paste0("(",keywords[i],")"), "<span style=\"background-color:#e6f1ff\">\\1</span>", df[,"Long Description"], ignore.case = TRUE, perl=TRUE)
   }
-
+  
   css.cols <- rep("", NCOL(df))
   css.cols[1] <- "border-bottom:1pt solid #d1d1d1; padding: 7px; vertical-align:top"
   css.cols[2] <- "border-bottom:1pt solid #d1d1d1; padding: 7px; width:8%; vertical-align:top"
@@ -102,7 +104,7 @@ html.formatdf <- function(df) {
   css.cols[5] <- "border-bottom:1pt solid #d1d1d1; padding: 7px; vertical-align:top; text-align:center"
   css.cols[6] <- "border-bottom:1pt solid #d1d1d1; padding: 7px; width:10%; vertical-align:top; text-align:center"
   css.cols[7] <- "border-bottom:1pt solid #d1d1d1; padding: 7px; vertical-align:top; text-align:center"
-
+  
   html.code <- htmlTable::htmlTable(
     df,
     align = paste0(c(rep("l", NCOL(df)-2),"c", "c")),
@@ -130,8 +132,8 @@ html.buildDoc <-function(body.html) {
         </style>
       </head>
       <body style=\"font-family:'Hind Madurai'; color:#494949; backgroundcolor:#FFFFFF;\">",
-        body.html,
-      "</body>
+                      body.html,
+                      "</body>
     <html>")
   return(html.code)
 }
