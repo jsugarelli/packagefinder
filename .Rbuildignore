@@ -4,3 +4,4 @@
 ^LICENSE$
 ^.*gz$
 ^README\.Rmd$
+_pkgdown.yml
