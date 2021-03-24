@@ -37,7 +37,7 @@ NULL
 
 
 .onAttach <- function(libname, pkgname){
-  packageStartupMessage(crayon::blue("You are working with", crayon::bold("\npackagefinder"), "version 0.3.2\n"))
+  packageStartupMessage(crayon::blue("You are working with", crayon::bold("\npackagefinder"), "version 0.3.3\n"))
   pf<-tools::CRAN_package_db()
   if("packagefinder" %in% pf$Package) {
     if(numeric_version(pf$Version[pf$Package=="packagefinder"]) < numeric_version(utils::packageVersion("packagefinder"))) packageStartupMessage(crayon::red("Please update packagefinder to the newest version", numeric_version(pf$Version[pf$Package=="packagefinder"]), "!\n\n"))
