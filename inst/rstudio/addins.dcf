@@ -1,4 +1,4 @@
 Name: packagefinder
-Description: Search packaes on CRAN.
+Description: Search packages on CRAN.
 Binding: packagefinderAddIn
 Interactive: true
